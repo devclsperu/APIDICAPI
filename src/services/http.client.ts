@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { apiConfig } from '../config/api.config';
+import axiosRetry from 'axios-retry';
+import { apiConfig, retryConfig } from '../config/api.config';
 import { logger } from '../utils/logger';
 
 export class HttpClient {
@@ -8,14 +9,17 @@ export class HttpClient {
     constructor() {
         this.client = axios.create(apiConfig);
 
+        // Configurar axios-retry
+        axiosRetry(this.client, retryConfig);
+
         // Interceptor para logging de peticiones
         this.client.interceptors.request.use(
             (config: any) => {
-                logger.info(`Petición a ${config.method?.toUpperCase()} ${config.url}`);
+                logger.info(`Request to ${config.method?.toUpperCase()} ${config.url}`);
                 return config;
             },
             (error: any) => {
-                logger.error(`Error en petición: ${error.message}`);
+                logger.error(`Request error: ${error.message}`);
                 return Promise.reject(error);
             }
         );
@@ -23,11 +27,11 @@ export class HttpClient {
         // Interceptor para logging de respuestas
         this.client.interceptors.response.use(
             (response: any) => {
-                logger.info(`Respuesta de ${response.config.method?.toUpperCase()} ${response.config.url}: ${response.status}`);
+                logger.info(`Response from ${response.config.method?.toUpperCase()} ${response.config.url}: ${response.status}`);
                 return response;
             },
             (error: any) => {
-                logger.error(`Error en respuesta: ${error.message}`);
+                logger.error(`Response error: ${error.message}`);
                 if (error.response) {
                     logger.error(`Status: ${error.response.status}, Data: ${JSON.stringify(error.response.data)}`);
                 }
@@ -41,7 +45,7 @@ export class HttpClient {
             const response = await this.client.get(url, { params });
             return response.data;
         } catch (error) {
-            logger.error(`Error en GET ${url}: ${error}`);
+            logger.error(`Error in GET ${url}: ${error}`);
             throw error;
         }
     }

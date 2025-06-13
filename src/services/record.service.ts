@@ -1,4 +1,5 @@
-import axios from "axios";
+import { config } from "../config/env.config";
+import { HttpClient } from "./http.client";
 import { logger } from "../utils/logger";
 import {
   IRecordsResponse,
@@ -10,11 +11,19 @@ export class RecordService {
   private readonly apiUrl: string;
   private readonly apiLogin: string;
   private readonly apiPassword: string;
+  private readonly httpClient: HttpClient;
 
   constructor() {
-    this.apiUrl = process.env.EXTERNAL_API_URL || "";
-    this.apiLogin = process.env.API_LOGIN || "";
-    this.apiPassword = process.env.API_PASSWORD || "";
+    this.apiUrl = "https://themis-clsperu.cls.fr/uda";
+    
+    // Validar que las credenciales estén disponibles
+    if (!config.apiLogin || !config.apiPassword) {
+      throw new Error("API credentials not configured. Please check API_LOGIN and API_PASSWORD environment variables.");
+    }
+    
+    this.apiLogin = config.apiLogin;
+    this.apiPassword = config.apiPassword;
+    this.httpClient = new HttpClient();
   }
 
   private transformRecord(externalRecord: IExternalRecord) {
@@ -67,41 +76,34 @@ export class RecordService {
       const queryParams = new URLSearchParams(params).toString();
       const fullUri = `${url}?${queryParams}`;
 
-      logger.info(`URL de la petición: ${url}`);
-      logger.info(`URI completo de la consulta: ${fullUri}`);
-      logger.info(`Parámetros de la petición: ${JSON.stringify(params)}`);
+      logger.info(`Request URL: ${url}`);
+      logger.info(`Complete query URI: ${fullUri}`);
+      logger.info(`Request parameters: ${JSON.stringify(params)}`);
       logger.info(
-        `Headers de la petición: ${JSON.stringify({
+        `Request headers: ${JSON.stringify({
           login: this.apiLogin,
           password: "****",
           application: "umv",
         })}`
       );
 
-      const response = await axios.get<IExternalRecordsResponse>(url, {
-        headers: {
-          login: this.apiLogin,
-          password: this.apiPassword,
-          application: "umv",
-        },
-        params: {
-          ...params,
-          // Asegurarnos de que estos campos siempre estén presentes
-          fields:
-            "activeBeaconRef,locDate,loc,speed,heading,mobileName,mobileTypeName",
-          orderBy: "locDate",
-        },
+      const response = await this.httpClient.get(url, {
+        ...params,
+        // Asegurarnos de que estos campos siempre estén presentes
+        fields:
+          "activeBeaconRef,locDate,loc,speed,heading,mobileName,mobileTypeName",
+        orderBy: "locDate",
       });
 
-      if (!response.data || !response.data.data) {
-        logger.error("Respuesta inválida de la API:", response.data);
-        throw new Error("Respuesta inválida de la API");
+      if (!response || !response.data) {
+        logger.error("Invalid API response:", response);
+        throw new Error("Invalid API response");
       }
 
-      const externalRecords = response.data.data;
-      logger.info(`Respuesta recibida con ${externalRecords.length} registros`);
+      const externalRecords = response.data;
+      logger.info(`Response received with ${externalRecords.length} records`);
 
-      const transformedRecords = externalRecords.map((record) =>
+      const transformedRecords = externalRecords.map((record: any) =>
         this.transformRecord(record)
       );
 
@@ -110,14 +112,14 @@ export class RecordService {
         data: transformedRecords,
       };
     } catch (error: any) {
-      logger.error(`Error en la petición: ${error.message}`);
+      logger.error(`Request error: ${error.message}`);
       if (error.response) {
         logger.error(`Status: ${error.response.status}`);
         logger.error(`Data: ${JSON.stringify(error.response.data)}`);
         logger.error(`Headers: ${JSON.stringify(error.response.headers)}`);
       }
       throw new Error(
-        `Error en la petición a la API: ${
+        `API request error: ${
           error.response?.data?.message || error.message
         }`
       );

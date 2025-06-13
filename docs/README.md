@@ -16,65 +16,129 @@ npm run build
 
 ## Ejecutar
 
-### Opción 1: Comando directo (con consola)
+### Desarrollo (con hot reload)
 ```bash
+npm run dev
+```
+- Usa archivo: `.env`
+- NODE_ENV: `dev`
+- Puerto por defecto: 6002
+
+### Producción
+```bash
+npm run build
 npm start
 ```
+- Usa archivo: `.env.production`
+- NODE_ENV: `prod`
+- Puerto por defecto: 6002
 
-### Opción 2: Archivo ejecutable (Windows)
-Doble clic en `scripts/start.bat`
-
-### Opción 3: Ejecutar en segundo plano (Windows)
-Doble clic en `scripts/start-background.bat`
-- La aplicación se ejecuta sin mostrar consola
-- Para detener: ejecutar `scripts/stop.bat`
-
-### Opción 4: Como servicio de Windows (Recomendado)
-Doble clic en `scripts/start-service.bat`
-- La aplicación se ejecuta como servicio de Windows
-- Se reinicia automáticamente si se cae
-- Inicia automáticamente al arrancar Windows
-- Comandos PM2:
-  - `pm2 status` - Ver estado
-  - `pm2 logs apidicapi` - Ver logs
-  - `pm2 stop apidicapi` - Detener
-  - `pm2 restart apidicapi` - Reiniciar
-
-### Opción 5: Sistema completo con HTTPS (Recomendado para producción)
-1. **Configurar certificados SSL**:
-   - Doble clic en `scripts/setup-ssl.bat`
-   - Coloca tus certificados en `ssl/certificate.crt` y `ssl/private.key`
-
-2. **Iniciar sistema completo**:
-   - Doble clic en `scripts/start-ssl-system.bat`
-   - Esto inicia tanto la aplicación como Nginx con SSL
-
-3. **Acceso**:
-   - **HTTPS**: https://localhost:4443/api/records
-   - **HTTP directo**: http://localhost:6002/api/records
-
-4. **Para detener**:
-   - Doble clic en `scripts/stop-ssl-system.bat`
+### Pruebas
+```bash
+npm run test
+```
+- Usa archivo: `.env.test`
+- NODE_ENV: `test`
+- Puerto por defecto: 6003
 
 ## Variables de entorno
 
-Crea un archivo `.env` con:
-
+### Desarrollo (`.env`)
 ```env
-API_TOKEN=tu_token_aqui
-API_LOGIN=tu_login_aqui
-API_PASSWORD=tu_password_aqui
+NODE_ENV=dev
+API_TOKEN=tu_token_desarrollo
+API_LOGIN=tu_login_desarrollo
+API_PASSWORD=tu_password_desarrollo
 EXTERNAL_API_URL=https://themis-clsperu.cls.fr/uda
 PORT=6002
 ```
 
+### Producción (`.env.production`)
+```env
+NODE_ENV=prod
+API_TOKEN=tu_token_produccion
+API_LOGIN=tu_login_produccion
+API_PASSWORD=tu_password_produccion
+EXTERNAL_API_URL=https://themis-clsperu.cls.fr/uda
+PORT=6002
+```
+
+### Pruebas (`.env.test`)
+```env
+NODE_ENV=test
+API_TOKEN=tu_token_pruebas
+API_LOGIN=tu_login_pruebas
+API_PASSWORD=tu_password_pruebas
+EXTERNAL_API_URL=https://themis-clsperu.cls.fr/uda
+PORT=6003
+```
+
 ## Endpoints
 
-- `GET /api/records/last-hour` - Registros de la última hora
-- `GET /api/records/all-day` - Registros de todo el día
-- `GET /api/records/:id` - Registro por ID
-- `GET /api/records/last/:hours` - Registros de las últimas N horas
-- `GET /api/records/date-range?from=DD-MM-YYYY_HH:mm:ss&to=DD-MM-YYYY_HH:mm:ss` - Registros por rango de fechas
+- `GET /api/v1/records/last-hour` - Registros de la última hora
+- `GET /api/v1/records/all-day` - Registros de todo el día
+- `GET /api/v1/records/:id` - Registro por ID
+- `GET /api/v1/records/last/:hours` - Registros de las últimas N horas
+- `GET /api/v1/records/date-range?date=DD-MM-YYYY` - Registros por fecha específica
+
+## Configuración de Timeouts y Reintentos
+
+La API utiliza **axios-retry** para manejar automáticamente los fallos temporales de red y del servidor externo.
+
+### Configuración actual:
+
+```typescript
+// Timeout de peticiones
+timeout: 30000, // 30 segundos
+
+// Configuración de reintentos
+retries: 3, // Número máximo de reintentos
+retryDelay: (retryCount) => {
+    // Backoff exponencial: 1s, 2s, 4s
+    return Math.min(1000 * Math.pow(2, retryCount - 1), 10000);
+},
+retryCondition: (error) => {
+    // Reintentar solo en:
+    return (
+        !error.response || // Errores de red
+        error.code === 'ECONNABORTED' || // Timeouts
+        (error.response && error.response.status >= 500) // Errores del servidor (5xx)
+    );
+}
+```
+
+### Comportamiento de reintentos:
+
+1. **Primer intento**: Petición inicial
+2. **Reintento 1**: Después de 1 segundo (si falla)
+3. **Reintento 2**: Después de 2 segundos (si falla)
+4. **Reintento 3**: Después de 4 segundos (si falla)
+5. **Fallback**: Si todos fallan, se devuelve error
+
+### Condiciones de reintento:
+
+- ✅ **Errores de red**: Sin respuesta del servidor
+- ✅ **Timeouts**: Petición excede 30 segundos
+- ✅ **Errores 5xx**: Errores internos del servidor
+- ❌ **Errores 4xx**: No se reintenta (errores del cliente)
+- ❌ **Errores de validación**: No se reintenta
+
+### Logging de reintentos:
+
+```json
+{
+  "timestamp": "2024-01-15T10:30:45.123Z",
+  "level": "info",
+  "message": "Retry attempt 2 for https://themis-clsperu.cls.fr/uda/resources/positions"
+}
+```
+
+### Beneficios:
+
+- **Mayor robustez**: Manejo automático de fallos temporales
+- **Mejor experiencia**: Menos errores por problemas de red
+- **Logging detallado**: Seguimiento completo de reintentos
+- **Configuración flexible**: Fácil ajuste de timeouts y reintentos
 
 ## Configuración SSL/HTTPS
 
@@ -111,7 +175,7 @@ La aplicación genera archivos de log diarios en la carpeta `logs/`:
   "timestamp": "2024-01-15T10:30:45.123Z",
   "level": "info",
   "message": "Client Query",
-  "endpoint": "/api/records/last-hour",
+  "endpoint": "/api/v1/records/last-hour",
   "params": {
     "query": {},
     "params": {},
@@ -130,3 +194,30 @@ La aplicación genera archivos de log diarios en la carpeta `logs/`:
 - **Código de estado**: HTTP status code
 - **IP del cliente**: Dirección IP del cliente
 - **Timestamp**: Fecha y hora exacta 
+
+## **5. Comandos para ejecutar:**
+
+```bash
+# Instalar cross-env
+npm install --save-dev cross-env
+
+# Desarrollo
+npm run dev        # Usa .env
+
+# Producción
+npm run build      # Compila
+npm start          # Usa .env.production
+
+# Pruebas
+npm run test       # Usa .env.test
+```
+
+## **✅ Beneficios de esta configuración:**
+
+1. **✅ Automático**: `npm start` usa `.env.production` sin configuración manual
+2. **✅ Compatible**: Funciona en Windows, Linux y macOS
+3. **✅ Separado**: Diferentes configuraciones para cada entorno
+4. **✅ Claro**: Cada comando usa el archivo correcto
+5. **✅ Seguro**: Credenciales separadas por entorno
+
+¿Quieres que proceda con estos cambios? 
