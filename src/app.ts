@@ -3,7 +3,7 @@ import bearerToken from 'express-bearer-token';
 import cors from 'cors';
 import { logger } from './utils/logger';
 import { queryLoggerMiddleware } from './middleware/query-logger.middleware';
-import recordRoutes from './routes/record.routes';
+import recordRoutes from './routes/v1/record.routes';
 import { globalLimiter } from './config/rateLimit.config';
 import './config/env.config';  // Importar la configuración de variables de entorno
 
@@ -35,23 +35,23 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 // Rutas (cada ruta tiene su propio rate limiting específico)
-app.use('/api/records', recordRoutes);
+app.use('/api/v1/records', recordRoutes);
 
 // Manejador de rutas no encontradas (404)
 app.use((req: Request, res: Response) => {
-    logger.warn(`Ruta no encontrada: ${req.method} ${req.url}`);
+    logger.warn(`Route not found: ${req.method} ${req.url}`);
     
     // Verificar si la ruta base es correcta
-    if (!req.url.startsWith('/api/records')) {
+    if (!req.url.startsWith('/api/v1/records')) {
         res.status(404).json({
             success: false,
-            error: 'Ruta no encontrada',
+            error: 'Route not found',
             details: {
-                message: 'La ruta base debe comenzar con /api/records',
+                message: 'The base route must start with /api/v1/records',
                 availableRoutes: [
-                    'GET /api/records/last-hour',
-                    'GET /api/records/all-day',
-                    'GET /api/records/:id'
+                    'GET /api/v1/records/last-hour',
+                    'GET /api/v1/records/all-day',
+                    'GET /api/v1/records/:id'
                 ]
             }
         });
@@ -61,13 +61,13 @@ app.use((req: Request, res: Response) => {
     // Si la ruta base es correcta pero el endpoint no existe
     res.status(404).json({
         success: false,
-        error: 'Endpoint no encontrado',
+        error: 'Endpoint not found',
         details: {
-            message: `El endpoint ${req.method} ${req.url} no existe`,
+            message: `The endpoint ${req.method} ${req.url} does not exist`,
             availableEndpoints: [
-                'GET /api/records/last-hour - Obtiene registros de la última hora',
-                'GET /api/records/all-day - Obtiene registros de todo el día',
-                'GET /api/records/:id - Obtiene registros por ID específico (requiere parámetro id)'
+                'GET /api/v1/records/last-hour - Get records from the last hour',
+                'GET /api/v1/records/all-day - Get records from the current day',
+                'GET /api/v1/records/:id - Get records by specific ID (requires id parameter)'
             ]
         }
     });
@@ -76,10 +76,10 @@ app.use((req: Request, res: Response) => {
 // Manejador de errores de validación de parámetros
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     if (err.name === 'ValidationError') {
-        logger.error(`Error de validación: ${err.message}`);
+        logger.error(`Validation error: ${err.message}`);
         res.status(400).json({
             success: false,
-            error: 'Error de validación',
+            error: 'Validation error',
             details: {
                 message: err.message,
                 parameter: err.param,
@@ -90,10 +90,10 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     }
 
     // Manejador de errores global
-    logger.error(`Error no manejado: ${err.message}`);
+    logger.error(`Unhandled error: ${err.message}`);
     res.status(500).json({
         success: false,
-        error: 'Error interno del servidor'
+        error: 'Internal server error'
     });
 });
 

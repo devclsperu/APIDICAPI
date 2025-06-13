@@ -1,14 +1,14 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { RecordController } from '../controllers/record.controller';
-import { validateToken } from '../middleware/auth.middleware';
-import { logger } from '../utils/logger';
+import { RecordController } from '../../controllers/record.controller';
+import { validateToken } from '../../middleware/auth.middleware';
+import { logger } from '../../utils/logger';
 import { 
     lastHourLimiter, 
     allDayLimiter, 
     recordsByIdLimiter, 
     lastHoursLimiter, 
     dateRangeLimiter 
-} from '../config/rateLimit.config';
+} from '../../config/rateLimit.config';
 
 const router = Router();
 const recordController = new RecordController();
@@ -17,12 +17,12 @@ const recordController = new RecordController();
 const validateHoursParam = (req: Request, res: Response, next: NextFunction) => {
     const hours = parseInt(req.params.hours);
     if (isNaN(hours) || hours < 2 || hours > 24) {
-        logger.warn(`Parámetro de horas inválido: ${req.params.hours}`);
+        logger.warn(`Invalid hours parameter: ${req.params.hours}`);
         res.status(400).json({
             success: false,
-            error: 'Parámetro inválido',
+            error: 'Invalid parameter',
             details: {
-                message: 'El parámetro de horas debe ser un número entre 2 y 24 (use /last-hour para 1 hora)',
+                message: 'The hours parameter must be a number between 2 and 24 (use /last-hour for 1 hour)',
                 received: req.params.hours
             }
         });
@@ -37,12 +37,12 @@ const validateDateRange = (req: Request, res: Response, next: NextFunction) => {
     
     // Validar que el parámetro exista
     if (!date) {
-        logger.warn('Falta parámetro de fecha');
+        logger.warn('Missing date parameter');
         res.status(400).json({
             success: false,
-            error: 'Parámetro requerido',
+            error: 'Required parameter',
             details: {
-                message: 'Se requiere el parámetro date (formato: DD-MM-YYYY)',
+                message: 'Date parameter is required (format: DD-MM-YYYY)',
                 received: { date }
             }
         });
@@ -52,12 +52,12 @@ const validateDateRange = (req: Request, res: Response, next: NextFunction) => {
     // Validar formato de fecha (DD-MM-YYYY)
     const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
     if (!dateRegex.test(date as string)) {
-        logger.warn(`Formato de fecha inválido: date=${date}`);
+        logger.warn(`Invalid date format: date=${date}`);
         res.status(400).json({
             success: false,
-            error: 'Formato de fecha inválido',
+            error: 'Invalid date format',
             details: {
-                message: 'La fecha debe estar en formato DD-MM-YYYY',
+                message: 'Date must be in DD-MM-YYYY format',
                 received: { date }
             }
         });
@@ -74,12 +74,12 @@ const validateDateRange = (req: Request, res: Response, next: NextFunction) => {
     const selectedDate = parseCustomDate(date as string);
     
     if (isNaN(selectedDate.getTime())) {
-        logger.warn(`Fecha inválida: ${date}`);
+        logger.warn(`Invalid date: ${date}`);
         res.status(400).json({
             success: false,
-            error: 'Fecha inválida',
+            error: 'Invalid date',
             details: {
-                message: 'La fecha proporcionada no es válida',
+                message: 'The provided date is not valid',
                 received: { date }
             }
         });
@@ -91,22 +91,22 @@ const validateDateRange = (req: Request, res: Response, next: NextFunction) => {
 
 // Middleware para validar que la ruta last-hour sea exacta
 const validateLastHourRoute = (req: Request, res: Response, next: NextFunction) => {
-    // Verificar que la URL completa sea exactamente /api/records/last-hour
-    if (req.originalUrl === '/api/records/last-hour') {
+    // Verificar que la URL completa sea exactamente /api/v1/records/last-hour
+    if (req.originalUrl === '/api/v1/records/last-hour') {
         next();
     } else {
-        logger.warn(`Ruta no encontrada: ${req.method} ${req.originalUrl}`);
+        logger.warn(`Route not found: ${req.method} ${req.originalUrl}`);
         res.status(404).json({
             success: false,
-            error: 'Endpoint no encontrado',
+            error: 'Endpoint not found',
             details: {
-                message: `El endpoint ${req.method} ${req.originalUrl} no existe`,
+                message: `The endpoint ${req.method} ${req.originalUrl} does not exist`,
                 availableEndpoints: [
-                    'GET /api/records/last-hour - Obtiene registros de la última hora',
-                    'GET /api/records/last/:hours - Obtiene registros de las últimas N horas (2-24)',
-                    'GET /api/records/date-range - Obtiene registros de un día específico (requiere query param: date en formato DD-MM-YYYY)',
-                    'GET /api/records/all-day - Obtiene todas las transmisiones del día actual',
-                    'GET /api/records/:id - Obtiene registros por ID específico (requiere parámetro id)'
+                    'GET /api/v1/records/last-hour - Get records from the last hour',
+                    'GET /api/v1/records/last/:hours - Get records from the last N hours (2-24)',
+                    'GET /api/v1/records/date-range - Get records from a specific day (requires query param: date in DD-MM-YYYY format)',
+                    'GET /api/v1/records/all-day - Get all transmissions from the current day',
+                    'GET /api/v1/records/:id - Get records by specific ID (requires id parameter)'
                 ]
             }
         });
@@ -117,12 +117,12 @@ const validateLastHourRoute = (req: Request, res: Response, next: NextFunction) 
 router.get('/last-hour', validateToken, lastHourLimiter, validateLastHourRoute, (req: Request, res: Response, next: NextFunction) => {
     // Verificación adicional para asegurar que no haya parámetros adicionales
     if (Object.keys(req.query).length > 0) {
-        logger.warn(`Parámetros no permitidos en la ruta last-hour: ${JSON.stringify(req.query)}`);
+        logger.warn(`Parameters not allowed in last-hour route: ${JSON.stringify(req.query)}`);
         res.status(400).json({
             success: false,
-            error: 'Parámetros no permitidos',
+            error: 'Parameters not allowed',
             details: {
-                message: 'La ruta /api/records/last-hour no acepta parámetros adicionales'
+                message: 'The route /api/v1/records/last-hour does not accept additional parameters'
             }
         });
         return;
@@ -143,18 +143,18 @@ router.get('/all-day', validateToken, allDayLimiter, recordController.getAllDayR
 router.get('/:id', validateToken, recordsByIdLimiter, (req: Request, res: Response, next: NextFunction) => {
     // Verificar que el ID no sea 'last-hour' o alguna variación
     if (req.params.id.toLowerCase().includes('last-hour')) {
-        logger.warn(`Intento de acceso a last-hour con variación: ${req.params.id}`);
+        logger.warn(`Attempt to access last-hour with variation: ${req.params.id}`);
         res.status(404).json({
             success: false,
-            error: 'Endpoint no encontrado',
+            error: 'Endpoint not found',
             details: {
-                message: `El endpoint ${req.method} /api/records/${req.params.id} no existe`,
+                message: `The endpoint ${req.method} /api/v1/records/${req.params.id} does not exist`,
                 availableEndpoints: [
-                    'GET /api/records/last-hour - Obtiene registros de la última hora',
-                    'GET /api/records/last/:hours - Obtiene registros de las últimas N horas (2-24)',
-                    'GET /api/records/date-range - Obtiene registros de un día específico (requiere query param: date en formato DD-MM-YYYY)',
-                    'GET /api/records/all-day - Obtiene todas las transmisiones del día actual',
-                    'GET /api/records/:id - Obtiene registros por ID específico (requiere parámetro id)'
+                    'GET /api/v1/records/last-hour - Get records from the last hour',
+                    'GET /api/v1/records/last/:hours - Get records from the last N hours (2-24)',
+                    'GET /api/v1/records/date-range - Get records from a specific day (requires query param: date in DD-MM-YYYY format)',
+                    'GET /api/v1/records/all-day - Get all transmissions from the current day',
+                    'GET /api/v1/records/:id - Get records by specific ID (requires id parameter)'
                 ]
             }
         });
