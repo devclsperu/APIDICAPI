@@ -47,30 +47,51 @@ npm run test
 ```env
 NODE_ENV=dev
 API_TOKEN=tu_token_desarrollo
-API_LOGIN=tu_login_desarrollo
-API_PASSWORD=tu_password_desarrollo
-EXTERNAL_API_URL=https://themis-clsperu.cls.fr/uda
 PORT=6002
+
+# Configuración para themisFrancia (API original)
+THEMIS_FRANCIA_URL=https://themis-clsperu.cls.fr/uda
+THEMIS_FRANCIA_LOGIN=tu_login_francia
+THEMIS_FRANCIA_PASSWORD=tu_password_francia
+
+# Configuración para themisDICAPI (nueva API)
+THEMIS_DICAPI_URL=http://10.202.18.7:8081/uda
+THEMIS_DICAPI_LOGIN=OPERADORCLS
+THEMIS_DICAPI_PASSWORD=OpCLS2022!
 ```
 
 ### Producción (`.env.production`)
 ```env
 NODE_ENV=prod
 API_TOKEN=tu_token_produccion
-API_LOGIN=tu_login_produccion
-API_PASSWORD=tu_password_produccion
-EXTERNAL_API_URL=https://themis-clsperu.cls.fr/uda
 PORT=6002
+
+# Configuración para themisFrancia (API original)
+THEMIS_FRANCIA_URL=https://themis-clsperu.cls.fr/uda
+THEMIS_FRANCIA_LOGIN=tu_login_francia_prod
+THEMIS_FRANCIA_PASSWORD=tu_password_francia_prod
+
+# Configuración para themisDICAPI (nueva API)
+THEMIS_DICAPI_URL=http://10.202.18.7:8081/uda
+THEMIS_DICAPI_LOGIN=OPERADORCLS
+THEMIS_DICAPI_PASSWORD=OpCLS2022!
 ```
 
 ### Pruebas (`.env.test`)
 ```env
 NODE_ENV=test
 API_TOKEN=tu_token_pruebas
-API_LOGIN=tu_login_pruebas
-API_PASSWORD=tu_password_pruebas
-EXTERNAL_API_URL=https://themis-clsperu.cls.fr/uda
 PORT=6003
+
+# Configuración para themisFrancia (API original)
+THEMIS_FRANCIA_URL=https://themis-clsperu.cls.fr/uda
+THEMIS_FRANCIA_LOGIN=tu_login_francia_test
+THEMIS_FRANCIA_PASSWORD=tu_password_francia_test
+
+# Configuración para themisDICAPI (nueva API)
+THEMIS_DICAPI_URL=http://10.202.18.7:8081/uda
+THEMIS_DICAPI_LOGIN=OPERADORCLS
+THEMIS_DICAPI_PASSWORD=OpCLS2022!
 ```
 
 ## Endpoints

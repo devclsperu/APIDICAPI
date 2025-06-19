@@ -14,15 +14,14 @@ export class RecordService {
   private readonly httpClient: HttpClient;
 
   constructor() {
-    this.apiUrl = "https://themis-clsperu.cls.fr/uda";
-    
-    // Validar que las credenciales estén disponibles
-    if (!config.apiLogin || !config.apiPassword) {
-      throw new Error("API credentials not configured. Please check API_LOGIN and API_PASSWORD environment variables.");
+    // Validar que las credenciales de themisDICAPI estén disponibles
+    if (!config.themisDicapi.url || !config.themisDicapi.login || !config.themisDicapi.password) {
+      throw new Error("ThemisDICAPI credentials not configured. Please check THEMIS_DICAPI_URL, THEMIS_DICAPI_LOGIN and THEMIS_DICAPI_PASSWORD environment variables.");
     }
     
-    this.apiLogin = config.apiLogin;
-    this.apiPassword = config.apiPassword;
+    this.apiUrl = config.themisDicapi.url;
+    this.apiLogin = config.themisDicapi.login;
+    this.apiPassword = config.themisDicapi.password;
     this.httpClient = new HttpClient();
   }
 
