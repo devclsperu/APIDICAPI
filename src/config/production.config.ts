@@ -65,7 +65,7 @@ export const productionConfig = {
 
     // Configuración de la API externa
     externalApi: {
-        url: process.env.EXTERNAL_API_URL || 'https://themis-clsperu.cls.fr/uda',
+        url: process.env.THEMIS_DICAPI_URL || 'http://10.202.18.7:8081/uda',
         timeout: 30000, // 30 segundos
         retries: 3,
         retryDelay: 1000

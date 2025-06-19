@@ -2,13 +2,13 @@ import { config } from './env.config';
 import axios from 'axios';
 
 export const apiConfig = {
-    baseURL: 'https://themis-clsperu.cls.fr/uda',
+    baseURL: config.themisDicapi.url,
     timeout: 30000, // 30 segundos (aumentado de 10)
     headers: {
         'Content-Type': 'application/json',
         'Accept': '*/*',
-        'login': config.apiLogin,
-        'password': config.apiPassword,
+        'login': config.themisDicapi.login,
+        'password': config.themisDicapi.password,
         'application': 'umv'
     }
 } as const;

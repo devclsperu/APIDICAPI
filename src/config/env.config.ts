@@ -35,10 +35,15 @@ if (result.error) {
 const requiredEnvVars = [
     'PORT', 
     'API_TOKEN', 
-    'API_LOGIN', 
-    'API_PASSWORD', 
     'NODE_ENV', 
-    'EXTERNAL_API_URL'
+    // Variables para themisFrancia
+    'THEMIS_FRANCIA_URL',
+    'THEMIS_FRANCIA_LOGIN',
+    'THEMIS_FRANCIA_PASSWORD',
+    // Variables para themisDICAPI
+    'THEMIS_DICAPI_URL',
+    'THEMIS_DICAPI_LOGIN',
+    'THEMIS_DICAPI_PASSWORD'
 ];
 const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 
@@ -57,13 +62,22 @@ if (process.env.NODE_ENV !== env) {
 export const config = {
     port: process.env.PORT,
     apiToken: process.env.API_TOKEN,
-    apiLogin: process.env.API_LOGIN,
-    apiPassword: process.env.API_PASSWORD,
     nodeEnv: env,
     isProd: env === 'prod',
     isDev: env === 'dev',
     isTest: env === 'test',
-    externalApiUrl: process.env.EXTERNAL_API_URL
+    // Configuración para themisFrancia
+    themisFrancia: {
+        url: process.env.THEMIS_FRANCIA_URL,
+        login: process.env.THEMIS_FRANCIA_LOGIN,
+        password: process.env.THEMIS_FRANCIA_PASSWORD
+    },
+    // Configuración para themisDICAPI
+    themisDicapi: {
+        url: process.env.THEMIS_DICAPI_URL,
+        login: process.env.THEMIS_DICAPI_LOGIN,
+        password: process.env.THEMIS_DICAPI_PASSWORD
+    }
 } as const;
 
 // Log único de configuración
@@ -73,5 +87,5 @@ logger.info({
     ambiente: config.nodeEnv,
     puerto: config.port,
     modo: config.isProd ? 'Producción' : config.isDev ? 'Desarrollo' : 'Pruebas',
-    apiUrl: config.externalApiUrl
+    apiUrl: config.themisDicapi.url
 }); 

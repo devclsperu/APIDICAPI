@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-es="APIDICAPI - Guía de Uso" data-en="APIDICAPI - Usage Guide">
+      APIDICAPI - Guía de Uso
+    </title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Sidebar -->
+      <nav class="sidebar">
+        <div class="sidebar-header">
+          <h2><i class="fas fa-code"></i> APIDICAPI</h2>
+          <p data-es="Guía de Uso" data-en="Usage Guide">Guía de Uso</p>
+        </div>
+        <ul class="nav-menu">
+          <li>
+            <a href="#general" class="nav-link"
+              ><i class="fas fa-info-circle"></i>
+              <span data-es="Información General" data-en="General Information"
+                >Información General</span
+              ></a
+            >
+          </li>
+          <li>
+            <a href="#authentication" class="nav-link"
+              ><i class="fas fa-key"></i>
+              <span data-es="Autenticación" data-en="Authentication"
+                >Autenticación</span
+              ></a
+            >
+          </li>
+          <li>
+            <a href="#endpoints" class="nav-link"
+              ><i class="fas fa-list"></i>
+              <span data-es="Endpoints" data-en="Endpoints">Endpoints</span></a
+            >
+          </li>
+          <li>
+            <a href="#responses" class="nav-link"
+              ><i class="fas fa-reply"></i>
+              <span data-es="Respuestas" data-en="Responses"
+                >Respuestas</span
+              ></a
+            >
+          </li>
+          <li>
+            <a href="#errors" class="nav-link"
+              ><i class="fas fa-exclamation-triangle"></i>
+              <span data-es="Errores" data-en="Errors">Errores</span></a
+            >
+          </li>
+          <li>
+            <a href="#best-practices" class="nav-link"
+              ><i class="fas fa-star"></i>
+              <span data-es="Mejores Prácticas" data-en="Best Practices"
+                >Mejores Prácticas</span
+              ></a
+            >
+          </li>
+          <li>
+            <a href="#support" class="nav-link"
+              ><i class="fas fa-headset"></i>
+              <span data-es="Soporte" data-en="Support">Soporte</span></a
+            >
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <header class="content-header">
+          <div class="header-top">
+            <div class="language-selector">
+              <button class="lang-btn active" data-lang="es">
+                <i class="fas fa-flag"></i>
+                ES
+              </button>
+              <button class="lang-btn" data-lang="en">
+                <i class="fas fa-flag"></i>
+                EN
+              </button>
+            </div>
+          </div>
+          <h1
+            data-es="Guía de Uso - APIDICAPI"
+            data-en="Usage Guide - APIDICAPI"
+          >
+            Guía de Uso - APIDICAPI
+          </h1>
+          <p
+            data-es="Documentación técnica para clientes de la API privada de consulta de registros."
+            data-en="Technical documentation for private API record query clients."
+          >
+            Documentación técnica para clientes de la API privada de consulta de
+            registros.
+          </p>
+        </header>
+
+        <section id="general" class="section">
+          <h2>
+            <i class="fas fa-info-circle"></i>
+            <span data-es="Información General" data-en="General Information"
+              >Información General</span
+            >
+          </h2>
+          <div class="info-grid">
+            <div class="info-card url-base-card">
+              <i class="fas fa-globe"></i>
+              <h3 data-es="URL Base" data-en="Base URL">URL Base</h3>
+              <code>https://200.60.23.180:4443/api/v1/records</code>
+            </div>
+            <div class="info-card">
+              <i class="fas fa-lock"></i>
+              <h3 data-es="Protocolo" data-en="Protocol">Protocolo</h3>
+              <span>HTTPS</span>
+            </div>
+            <div class="info-card">
+              <i class="fas fa-key"></i>
+              <h3 data-es="Autenticación" data-en="Authentication">
+                Autenticación
+              </h3>
+              <span data-es="Bearer Token" data-en="Bearer Token"
+                >Bearer Token</span
+              >
+            </div>
+            <div class="info-card">
+              <i class="fas fa-file-code"></i>
+              <h3 data-es="Formato" data-en="Format">Formato</h3>
+              <span>JSON</span>
+            </div>
+            <div class="info-card">
+              <i class="fas fa-tachometer-alt"></i>
+              <h3 data-es="Rate Limiting" data-en="Rate Limiting">
+                Rate Limiting
+              </h3>
+              <span data-es="10 requests/segundo" data-en="10 requests/second"
+                >10 requests/segundo</span
+              >
+            </div>
+          </div>
+        </section>
+
+        <section id="authentication" class="section">
+          <h2>
+            <i class="fas fa-key"></i>
+            <span data-es="Autenticación" data-en="Authentication"
+              >Autenticación</span
+            >
+          </h2>
+          <p
+            data-es="Todas las peticiones requieren autenticación mediante Bearer Token en el header:"
+            data-en="All requests require authentication via Bearer Token in the header:"
+          >
+            Todas las peticiones requieren autenticación mediante Bearer Token
+            en el header:
+          </p>
+
+          <div class="code-block">
+            <div class="code-header">
+              <span
+                data-es="Header de Autenticación"
+                data-en="Authentication Header"
+                >Header de Autenticación</span
+              >
+              <button class="copy-btn" onclick="copyToClipboard('auth-header')">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <pre
+              id="auth-header"
+            ><code>Authorization: Bearer YOUR_API_TOKEN</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-header">
+              <span data-es="Ejemplo con cURL" data-en="cURL Example"
+                >Ejemplo con cURL</span
+              >
+              <button
+                class="copy-btn"
+                onclick="copyToClipboard('curl-example')"
+              >
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <pre
+              id="curl-example"
+            ><code>curl -H "Authorization: Bearer YOUR_API_TOKEN" \
+     https://200.60.23.180:4443/api/v1/records/last-hour</code></pre>
+          </div>
+        </section>
+
+        <section id="endpoints" class="section">
+          <h2>
+            <i class="fas fa-list"></i>
+            <span data-es="Endpoints Disponibles" data-en="Available Endpoints"
+              >Endpoints Disponibles</span
+            >
+          </h2>
+
+          <div class="endpoint-card">
+            <div class="endpoint-header">
+              <span class="method get">GET</span>
+              <h3>/api/v1/records/last-hour</h3>
+            </div>
+            <p>
+              <strong data-es="Descripción:" data-en="Description:"
+                >Descripción:</strong
+              >
+              <span
+                data-es="Obtiene todos los registros de la última hora."
+                data-en="Gets all records from the last hour."
+                >Obtiene todos los registros de la última hora.</span
+              >
+            </p>
+
+            <div class="code-block">
+              <div class="code-header">
+                <span data-es="Ejemplo de petición" data-en="Request Example"
+                  >Ejemplo de petición</span
+                >
+                <button
+                  class="copy-btn"
+                  onclick="copyToClipboard('last-hour-request')"
+                >
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+              <pre
+                id="last-hour-request"
+              ><code>curl -H "Authorization: Bearer YOUR_API_TOKEN" \
+     https://200.60.23.180:4443/api/v1/records/last-hour</code></pre>
+            </div>
+
+            <div class="code-block">
+              <div class="code-header">
+                <span
+                  data-es="Respuesta exitosa (200)"
+                  data-en="Successful Response (200)"
+                  >Respuesta exitosa (200)</span
+                >
+                <button
+                  class="copy-btn"
+                  onclick="copyToClipboard('last-hour-response')"
+                >
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+              <pre id="last-hour-response"><code>{
+  "success": true,
+  "data": [
+    {
+      "id": "123456",
+      "longitude": -77.0428,
+      "latitude": -12.0464,
+      "transmissionDateTime": "2025/01/15 14:30:25",
+      "course": 245,
+      "speed": 15,
+      "mobileName": "MARIA ELENA",
+      "mobileTypeName": "FLUVIAL"
+    },
+    {
+      "id": "789012",
+      "longitude": -77.0521,
+      "latitude": -12.0512,
+      "transmissionDateTime": "2025/01/15 14:29:18",
+      "course": 180,
+      "speed": 0,
+      "mobileName": "SANTA ROSA",
+      "mobileTypeName": "FLUVIAL"
+    }
+  ]
+}</code></pre>
+            </div>
+          </div>
+
+          <div class="endpoint-card">
+            <div class="endpoint-header">
+              <span class="method get">GET</span>
+              <h3>/api/v1/records/all-day</h3>
+            </div>
+            <p>
+              <strong data-es="Descripción:" data-en="Description:"
+                >Descripción:</strong
+              >
+              <span
+                data-es="Obtiene todos los registros del día actual (00:00:00 a 23:59:59)."
+                data-en="Gets all records from the current day (00:00:00 to 23:59:59)."
+                >Obtiene todos los registros del día actual (00:00:00 a
+                23:59:59).</span
+              >
+            </p>
+
+            <div class="code-block">
+              <div class="code-header">
+                <span data-es="Ejemplo de petición" data-en="Request Example"
+                  >Ejemplo de petición</span
+                >
+                <button
+                  class="copy-btn"
+                  onclick="copyToClipboard('all-day-request')"
+                >
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+              <pre
+                id="all-day-request"
+              ><code>curl -H "Authorization: Bearer YOUR_API_TOKEN" \
+     https://200.60.23.180:4443/api/v1/records/all-day</code></pre>
+            </div>
+          </div>
+
+          <div class="endpoint-card">
+            <div class="endpoint-header">
+              <span class="method get">GET</span>
+              <h3>/api/v1/records/{id}</h3>
+            </div>
+            <p>
+              <strong data-es="Descripción:" data-en="Description:"
+                >Descripción:</strong
+              >
+              <span
+                data-es="Obtiene registros de un vehículo específico por su ID."
+                data-en="Gets records from a specific vehicle by its ID."
+                >Obtiene registros de un vehículo específico por su ID.</span
+              >
+            </p>
+            <p>
+              <strong data-es="Parámetros:" data-en="Parameters:"
+                >Parámetros:</strong
+              >
+            </p>
+            <ul>
+              <li>
+                <code>id</code>
+                <span
+                  data-es="(path): ID del vehículo/beacon"
+                  data-en="(path): Vehicle/beacon ID"
+                  >(path): ID del vehículo/beacon</span
+                >
+              </li>
+            </ul>
+
+            <div class="code-block">
+              <div class="code-header">
+                <span data-es="Ejemplo de petición" data-en="Request Example"
+                  >Ejemplo de petición</span
+                >
+                <button
+                  class="copy-btn"
+                  onclick="copyToClipboard('by-id-request')"
+                >
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+              <pre
+                id="by-id-request"
+              ><code>curl -H "Authorization: Bearer YOUR_API_TOKEN" \
+     https://200.60.23.180:4443/api/v1/records/123456</code></pre>
+            </div>
+          </div>
+
+          <div class="endpoint-card">
+            <div class="endpoint-header">
+              <span class="method get">GET</span>
+              <h3>/api/v1/records/last/{hours}</h3>
+            </div>
+            <p>
+              <strong data-es="Descripción:" data-en="Description:"
+                >Descripción:</strong
+              >
+              <span
+                data-es="Obtiene registros de las últimas N horas (2-24 horas)."
+                data-en="Gets records from the last N hours (2-24 hours)."
+                >Obtiene registros de las últimas N horas (2-24 horas).</span
+              >
+            </p>
+            <p>
+              <strong data-es="Parámetros:" data-en="Parameters:"
+                >Parámetros:</strong
+              >
+            </p>
+            <ul>
+              <li>
+                <code>hours</code>
+                <span
+                  data-es="(path): Número de horas (2-24)"
+                  data-en="(path): Number of hours (2-24)"
+                  >(path): Número de horas (2-24)</span
+                >
+              </li>
+            </ul>
+
+            <div class="code-block">
+              <div class="code-header">
+                <span data-es="Ejemplo de petición" data-en="Request Example"
+                  >Ejemplo de petición</span
+                >
+                <button
+                  class="copy-btn"
+                  onclick="copyToClipboard('last-hours-request')"
+                >
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+              <pre
+                id="last-hours-request"
+              ><code>curl -H "Authorization: Bearer YOUR_API_TOKEN" \
+     https://200.60.23.180:4443/api/v1/records/last/6</code></pre>
+            </div>
+          </div>
+
+          <div class="endpoint-card">
+            <div class="endpoint-header">
+              <span class="method get">GET</span>
+              <h3>/api/v1/records/date-range?date=DD-MM-YYYY</h3>
+            </div>
+            <p>
+              <strong data-es="Descripción:" data-en="Description:"
+                >Descripción:</strong
+              >
+              <span
+                data-es="Obtiene registros de una fecha específica."
+                data-en="Gets records from a specific date."
+                >Obtiene registros de una fecha específica.</span
+              >
+            </p>
+            <p>
+              <strong data-es="Parámetros:" data-en="Parameters:"
+                >Parámetros:</strong
+              >
+            </p>
+            <ul>
+              <li>
+                <code>date</code>
+                <span
+                  data-es="(query): Fecha en formato DD-MM-YYYY"
+                  data-en="(query): Date in DD-MM-YYYY format"
+                  >(query): Fecha en formato DD-MM-YYYY</span
+                >
+              </li>
+            </ul>
+
+            <div class="code-block">
+              <div class="code-header">
+                <span data-es="Ejemplo de petición" data-en="Request Example"
+                  >Ejemplo de petición</span
+                >
+                <button
+                  class="copy-btn"
+                  onclick="copyToClipboard('date-range-request')"
+                >
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+              <pre
+                id="date-range-request"
+              ><code>curl -H "Authorization: Bearer YOUR_API_TOKEN" \
+     "https://200.60.23.180:4443/api/v1/records/date-range?date=13-06-2025"</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <section id="responses" class="section">
+          <h2>
+            <i class="fas fa-reply"></i>
+            <span data-es="Estructura de Respuesta" data-en="Response Structure"
+              >Estructura de Respuesta</span
+            >
+          </h2>
+
+          <div class="response-card">
+            <h3 data-es="Respuesta Exitosa" data-en="Successful Response">
+              Respuesta Exitosa
+            </h3>
+            <div class="code-block">
+              <div class="code-header">
+                <span data-es="Estructura JSON" data-en="JSON Structure"
+                  >Estructura JSON</span
+                >
+                <button
+                  class="copy-btn"
+                  onclick="copyToClipboard('success-response')"
+                >
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+              <pre id="success-response"><code>{
+  "success": true,
+  "data": [
+    {
+      "id": "string",
+      "longitude": "number",
+      "latitude": "number",
+      "transmissionDateTime": "string (YYYY/MM/DD HH:mm:ss)",
+      "course": "number",
+      "speed": "number",
+      "mobileName": "string",
+      "mobileTypeName": "string"
+    }
+  ]
+}</code></pre>
+            </div>
+          </div>
+
+          <div class="response-card">
+            <h3 data-es="Campos de la Respuesta" data-en="Response Fields">
+              Campos de la Respuesta
+            </h3>
+            <div class="fields-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th data-es="Campo" data-en="Field">Campo</th>
+                    <th data-es="Tipo" data-en="Type">Tipo</th>
+                    <th data-es="Descripción" data-en="Description">
+                      Descripción
+                    </th>
+                    <th data-es="Ejemplo" data-en="Example">Ejemplo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>id</code></td>
+                    <td>string</td>
+                    <td
+                      data-es="Identificador único del vehículo"
+                      data-en="Unique vehicle identifier"
+                    >
+                      Identificador único del vehículo
+                    </td>
+                    <td>"123456"</td>
+                  </tr>
+                  <tr>
+                    <td><code>longitude</code></td>
+                    <td>number</td>
+                    <td
+                      data-es="Longitud geográfica"
+                      data-en="Geographic longitude"
+                    >
+                      Longitud geográfica
+                    </td>
+                    <td>-77.0428</td>
+                  </tr>
+                  <tr>
+                    <td><code>latitude</code></td>
+                    <td>number</td>
+                    <td
+                      data-es="Latitud geográfica"
+                      data-en="Geographic latitude"
+                    >
+                      Latitud geográfica
+                    </td>
+                    <td>-12.0464</td>
+                  </tr>
+                  <tr>
+                    <td><code>transmissionDateTime</code></td>
+                    <td>string</td>
+                    <td
+                      data-es="Fecha y hora de transmisión"
+                      data-en="Transmission date and time"
+                    >
+                      Fecha y hora de transmisión
+                    </td>
+                    <td>"2025/01/15 14:30:25"</td>
+                  </tr>
+                  <tr>
+                    <td><code>course</code></td>
+                    <td>number</td>
+                    <td
+                      data-es="Dirección en grados (0-360)"
+                      data-en="Direction in degrees (0-360)"
+                    >
+                      Dirección en grados (0-360)
+                    </td>
+                    <td>245</td>
+                  </tr>
+                  <tr>
+                    <td><code>speed</code></td>
+                    <td>number</td>
+                    <td data-es="Velocidad en km/h" data-en="Speed in km/h">
+                      Velocidad en km/h
+                    </td>
+                    <td>15</td>
+                  </tr>
+                  <tr>
+                    <td><code>mobileName</code></td>
+                    <td>string</td>
+                    <td
+                      data-es="Nombre del vehículo móvil"
+                      data-en="Mobile vehicle name"
+                    >
+                      Nombre del vehículo móvil
+                    </td>
+                    <td>"MARIA ELENA"</td>
+                  </tr>
+                  <tr>
+                    <td><code>mobileTypeName</code></td>
+                    <td>string</td>
+                    <td data-es="Tipo de vehículo" data-en="Vehicle type">
+                      Tipo de vehículo
+                    </td>
+                    <td>"FLUVIAL"</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="response-card">
+            <h3 data-es="Respuesta de Error" data-en="Error Response">
+              Respuesta de Error
+            </h3>
+            <div class="code-block">
+              <div class="code-header">
+                <span data-es="Estructura JSON" data-en="JSON Structure"
+                  >Estructura JSON</span
+                >
+                <button
+                  class="copy-btn"
+                  onclick="copyToClipboard('error-response')"
+                >
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+              <pre id="error-response"><code>{
+  "success": false,
+  "error": "string",
+  "details": {
+    "message": "string",
+    "parameter": "string (opcional)",
+    "value": "any (opcional)"
+  }
+}</code></pre>
+            </div>
+          </div>
+
+          <div class="status-codes">
+            <h3 data-es="Códigos de Estado HTTP" data-en="HTTP Status Codes">
+              Códigos de Estado HTTP
+            </h3>
+            <div class="status-grid">
+              <div class="status-item success">
+                <span class="status-code">200</span>
+                <span
+                  class="status-text"
+                  data-es="OK - Petición exitosa"
+                  data-en="OK - Successful request"
+                  >OK - Petición exitosa</span
+                >
+              </div>
+              <div class="status-item warning">
+                <span class="status-code">400</span>
+                <span
+                  class="status-text"
+                  data-es="Bad Request - Parámetros inválidos"
+                  data-en="Bad Request - Invalid parameters"
+                  >Bad Request - Parámetros inválidos</span
+                >
+              </div>
+              <div class="status-item warning">
+                <span class="status-code">401</span>
+                <span
+                  class="status-text"
+                  data-es="Unauthorized - Token inválido"
+                  data-en="Unauthorized - Invalid token"
+                  >Unauthorized - Token inválido</span
+                >
+              </div>
+              <div class="status-item warning">
+                <span class="status-code">404</span>
+                <span
+                  class="status-text"
+                  data-es="Not Found - Endpoint no encontrado"
+                  data-en="Not Found - Endpoint not found"
+                  >Not Found - Endpoint no encontrado</span
+                >
+              </div>
+              <div class="status-item error">
+                <span class="status-code">429</span>
+                <span
+                  class="status-text"
+                  data-es="Too Many Requests - Rate limit excedido"
+                  data-en="Too Many Requests - Rate limit exceeded"
+                  >Too Many Requests - Rate limit excedido</span
+                >
+              </div>
+              <div class="status-item error">
+                <span class="status-code">500</span>
+                <span
+                  class="status-text"
+                  data-es="Internal Server Error - Error interno"
+                  data-en="Internal Server Error - Internal error"
+                  >Internal Server Error - Error interno</span
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="errors" class="section">
+          <h2>
+            <i class="fas fa-exclamation-triangle"></i>
+            <span data-es="Manejo de Errores" data-en="Error Handling"
+              >Manejo de Errores</span
+            >
+          </h2>
+          <p
+            data-es="Errores comunes y sus soluciones:"
+            data-en="Common errors and their solutions:"
+          >
+            Errores comunes y sus soluciones:
+          </p>
+
+          <div class="error-card">
+            <div class="error-header">
+              <span class="error-code">401</span>
+              <h3 data-es="Unauthorized" data-en="Unauthorized">
+                Unauthorized
+              </h3>
+            </div>
+            <div class="code-block">
+              <pre><code>{
+  "success": false,
+  "error": "Unauthorized",
+  "details": {
+    "message": "Invalid or missing authentication token"
+  }
+}</code></pre>
+            </div>
+            <p>
+              <strong data-es="Solución:" data-en="Solution:">Solución:</strong>
+              <span
+                data-es="Verificar que el token sea válido y esté incluido en el header."
+                data-en="Verify that the token is valid and included in the header."
+                >Verificar que el token sea válido y esté incluido en el
+                header.</span
+              >
+            </p>
+          </div>
+
+          <div class="error-card">
+            <div class="error-header">
+              <span class="error-code">400</span>
+              <h3 data-es="Bad Request" data-en="Bad Request">Bad Request</h3>
+            </div>
+            <div class="code-block">
+              <pre><code>{
+  "success": false,
+  "error": "Invalid parameter",
+  "details": {
+    "message": "The hours parameter must be a number between 2 and 24",
+    "received": "25"
+  }
+}</code></pre>
+            </div>
+            <p>
+              <strong data-es="Solución:" data-en="Solution:">Solución:</strong>
+              <span
+                data-es="Verificar que los parámetros cumplan con las validaciones."
+                data-en="Verify that parameters meet the validations."
+                >Verificar que los parámetros cumplan con las
+                validaciones.</span
+              >
+            </p>
+          </div>
+
+          <div class="error-card">
+            <div class="error-header">
+              <span class="error-code">429</span>
+              <h3 data-es="Too Many Requests" data-en="Too Many Requests">
+                Too Many Requests
+              </h3>
+            </div>
+            <div class="code-block">
+              <pre><code>{
+  "success": false,
+  "error": "Too many requests",
+  "details": {
+    "message": "Rate limit exceeded. Try again later."
+  }
+}</code></pre>
+            </div>
+            <p>
+              <strong data-es="Solución:" data-en="Solution:">Solución:</strong>
+              <span
+                data-es="Implementar retrasos entre peticiones (máximo 10 requests/segundo)."
+                data-en="Implement delays between requests (maximum 10 requests/second)."
+                >Implementar retrasos entre peticiones (máximo 10
+                requests/segundo).</span
+              >
+            </p>
+          </div>
+
+          <div class="error-card">
+            <div class="error-header">
+              <span class="error-code">404</span>
+              <h3 data-es="Not Found" data-en="Not Found">Not Found</h3>
+            </div>
+            <div class="code-block">
+              <pre><code>{
+  "success": false,
+  "error": "Endpoint not found",
+  "details": {
+    "message": "The endpoint GET /api/v1/records/invalid does not exist",
+    "availableEndpoints": [
+      "GET /api/v1/records/last-hour",
+      "GET /api/v1/records/all-day",
+      "GET /api/v1/records/:id"
+    ]
+  }
+}</code></pre>
+            </div>
+            <p>
+              <strong data-es="Solución:" data-en="Solution:">Solución:</strong>
+              <span
+                data-es="Verificar que la URL del endpoint sea correcta."
+                data-en="Verify that the endpoint URL is correct."
+                >Verificar que la URL del endpoint sea correcta.</span
+              >
+            </p>
+          </div>
+        </section>
+
+        <section id="best-practices" class="section">
+          <h2>
+            <i class="fas fa-star"></i>
+            <span data-es="Mejores Prácticas" data-en="Best Practices"
+              >Mejores Prácticas</span
+            >
+          </h2>
+
+          <div class="practice-card">
+            <h3>
+              <i class="fas fa-tachometer-alt"></i>
+              <span data-es="Rate Limiting" data-en="Rate Limiting"
+                >Rate Limiting</span
+              >
+            </h3>
+            <ul>
+              <li
+                data-es="Máximo 10 peticiones por segundo"
+                data-en="Maximum 10 requests per second"
+              >
+                Máximo 10 peticiones por segundo
+              </li>
+              <li
+                data-es="Implementar retrasos entre peticiones consecutivas"
+                data-en="Implement delays between consecutive requests"
+              >
+                Implementar retrasos entre peticiones consecutivas
+              </li>
+              <li
+                data-es="Manejar errores 429 con reintentos exponenciales"
+                data-en="Handle 429 errors with exponential retries"
+              >
+                Manejar errores 429 con reintentos exponenciales
+              </li>
+            </ul>
+          </div>
+
+          <div class="practice-card">
+            <h3>
+              <i class="fas fa-exclamation-triangle"></i>
+              <span data-es="Manejo de Errores" data-en="Error Handling"
+                >Manejo de Errores</span
+              >
+            </h3>
+            <ul>
+              <li
+                data-es="Siempre verificar el campo success en las respuestas"
+                data-en="Always check the success field in responses"
+              >
+                Siempre verificar el campo <code>success</code> en las
+                respuestas
+              </li>
+              <li
+                data-es="Implementar reintentos para errores temporales (5xx)"
+                data-en="Implement retries for temporary errors (5xx)"
+              >
+                Implementar reintentos para errores temporales (5xx)
+              </li>
+              <li
+                data-es="No reintentar errores de cliente (4xx)"
+                data-en="Do not retry client errors (4xx)"
+              >
+                No reintentar errores de cliente (4xx)
+              </li>
+            </ul>
+          </div>
+
+          <div class="practice-card">
+            <h3>
+              <i class="fas fa-check-circle"></i>
+              <span
+                data-es="Validación de Respuestas"
+                data-en="Response Validation"
+                >Validación de Respuestas</span
+              >
+            </h3>
+            <ul>
+              <li
+                data-es="Verificar que response.success sea true"
+                data-en="Verify that response.success is true"
+              >
+                Verificar que <code>response.success</code> sea
+                <code>true</code>
+              </li>
+              <li
+                data-es="Validar la estructura de response.data"
+                data-en="Validate the structure of response.data"
+              >
+                Validar la estructura de <code>response.data</code>
+              </li>
+              <li
+                data-es="Manejar casos donde data esté vacío"
+                data-en="Handle cases where data is empty"
+              >
+                Manejar casos donde <code>data</code> esté vacío
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="support" class="section">
+          <h2>
+            <i class="fas fa-headset"></i>
+            <span data-es="Soporte Técnico" data-en="Technical Support"
+              >Soporte Técnico</span
+            >
+          </h2>
+
+          <div class="support-info">
+            <div class="support-card">
+              <i class="fas fa-envelope"></i>
+              <h3 data-es="Email" data-en="Email">Email</h3>
+              <p>jaguirre@groupcls.com</p>
+            </div>
+            <div class="support-card">
+              <i class="fas fa-clock"></i>
+              <h3 data-es="Horario" data-en="Schedule">Horario</h3>
+              <p
+                data-es="Lunes a Viernes 8:00 AM - 6:00 PM"
+                data-en="Monday to Friday 8:00 AM - 6:00 PM"
+              >
+                Lunes a Viernes 8:00 AM - 6:00 PM
+              </p>
+            </div>
+            <div class="support-card">
+              <i class="fas fa-hourglass-half"></i>
+              <h3 data-es="Tiempo de Respuesta" data-en="Response Time">
+                Tiempo de Respuesta
+              </h3>
+              <p
+                data-es="Máximo 24 horas hábiles"
+                data-en="Maximum 24 business hours"
+              >
+                Máximo 24 horas hábiles
+              </p>
+            </div>
+          </div>
+
+          <div class="changelog">
+            <h3 data-es="Changelog" data-en="Changelog">Changelog</h3>
+            <div class="version">
+              <h4>v1.0.0 (2024-01-15)</h4>
+              <ul>
+                <li
+                  data-es="✅ Endpoints básicos implementados"
+                  data-en="✅ Basic endpoints implemented"
+                >
+                  ✅ Endpoints básicos implementados
+                </li>
+                <li
+                  data-es="✅ Autenticación por Bearer Token"
+                  data-en="✅ Bearer Token authentication"
+                >
+                  ✅ Autenticación por Bearer Token
+                </li>
+                <li
+                  data-es="✅ Rate limiting configurado"
+                  data-en="✅ Rate limiting configured"
+                >
+                  ✅ Rate limiting configurado
+                </li>
+                <li data-es="✅ Logs detallados" data-en="✅ Detailed logs">
+                  ✅ Logs detallados
+                </li>
+                <li
+                  data-es="✅ Manejo de errores mejorado"
+                  data-en="✅ Improved error handling"
+                >
+                  ✅ Manejo de errores mejorado
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
