@@ -261,4 +261,33 @@ export const dateRangeLimiter = rateLimit({
             }
         });
     }
+});
+
+// Rate limiting específico para selectDay
+export const selectDayLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hora
+    max: 120, // máximo 120 peticiones por hora
+    message: {
+        success: false,
+        error: 'Demasiadas peticiones a select-day',
+        details: {
+            message: 'Has excedido el límite de peticiones a select-day. Intenta nuevamente en 1 hora.',
+            limit: 120,
+            windowMs: '1 hora'
+        }
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (req: Request, res: Response) => {
+        logger.warn(`Rate limit de select-day excedido para IP: ${req.ip}`);
+        res.status(429).json({
+            success: false,
+            error: 'Demasiadas peticiones a select-day',
+            details: {
+                message: 'Has excedido el límite de peticiones a select-day. Intenta nuevamente en 1 hora.',
+                limit: 120,
+                windowMs: '1 hora'
+            }
+        });
+    }
 }); 

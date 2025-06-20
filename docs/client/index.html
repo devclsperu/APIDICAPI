@@ -468,7 +468,57 @@
               <pre
                 id="date-range-request"
               ><code>curl -H "Authorization: Bearer YOUR_API_TOKEN" \
-     "https://200.60.23.180:4443/api/v1/records/date-range?date=13-06-2025"</code></pre>
+     https://200.60.23.180:4443/api/v1/records/date-range?date=15-01-2024</code></pre>
+            </div>
+          </div>
+
+          <div class="endpoint-card">
+            <div class="endpoint-header">
+              <span class="method get">GET</span>
+              <h3>/api/v1/records/select-day?date=DD-MM-YYYY</h3>
+            </div>
+            <p>
+              <strong data-es="Descripción:" data-en="Description:"
+                >Descripción:</strong
+              >
+              <span
+                data-es="Obtiene registros de una fecha específica dividiendo la consulta en dos partes (mañana y tarde) para mejor rendimiento."
+                data-en="Gets records from a specific date by dividing the query into two parts (morning and afternoon) for better performance."
+                >Obtiene registros de una fecha específica dividiendo la consulta en dos partes (mañana y tarde) para mejor rendimiento.</span
+              >
+            </p>
+            <p>
+              <strong data-es="Parámetros:" data-en="Parameters:"
+                >Parámetros:</strong
+              >
+            </p>
+            <ul>
+              <li>
+                <code>date</code>
+                <span
+                  data-es="(query): Fecha en formato DD-MM-YYYY"
+                  data-en="(query): Date in DD-MM-YYYY format"
+                  >(query): Fecha en formato DD-MM-YYYY</span
+                >
+              </li>
+            </ul>
+
+            <div class="code-block">
+              <div class="code-header">
+                <span data-es="Ejemplo de petición" data-en="Request Example"
+                  >Ejemplo de petición</span
+                >
+                <button
+                  class="copy-btn"
+                  onclick="copyToClipboard('select-day-request')"
+                >
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+              <pre
+                id="select-day-request"
+              ><code>curl -H "Authorization: Bearer YOUR_API_TOKEN" \
+     https://200.60.23.180:4443/api/v1/records/select-day?date=15-01-2024</code></pre>
             </div>
           </div>
         </section>
