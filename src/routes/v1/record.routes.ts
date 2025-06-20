@@ -7,7 +7,8 @@ import {
     allDayLimiter, 
     recordsByIdLimiter, 
     lastHoursLimiter, 
-    dateRangeLimiter 
+    dateRangeLimiter,
+    selectDayLimiter
 } from '../../config/rateLimit.config';
 
 const router = Router();
@@ -135,6 +136,9 @@ router.get('/last/:hours', validateToken, lastHoursLimiter, validateHoursParam, 
 
 // Nueva ruta para consulta por rango de fechas (DEBE IR ANTES QUE /:id)
 router.get('/date-range', validateToken, dateRangeLimiter, validateDateRange, recordController.getRecordsByDateRange.bind(recordController));
+
+// Nueva ruta para consulta de día completo dividido en dos partes
+router.get('/select-day', validateToken, selectDayLimiter, validateDateRange, recordController.selectDay.bind(recordController));
 
 // Nueva ruta para obtener todas las transmisiones del día actual (DEBE IR ANTES QUE /:id)
 router.get('/all-day', validateToken, allDayLimiter, recordController.getAllDayRecords.bind(recordController));

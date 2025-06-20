@@ -1,6 +1,7 @@
 import { config } from "../config/env.config";
 import { HttpClient } from "./http.client";
 import { logger } from "../utils/logger";
+import { MaxRowsReachedError } from "../utils/errors";
 import {
   IRecordsResponse,
   IExternalRecord,
@@ -116,6 +117,19 @@ export class RecordService {
         logger.error(`Status: ${error.response.status}`);
         logger.error(`Data: ${JSON.stringify(error.response.data)}`);
         logger.error(`Headers: ${JSON.stringify(error.response.headers)}`);
+        
+        // Verificar si es un error de MAX_ROWS_REACHED
+        if (error.response.data && error.response.data.errors) {
+          const maxRowsError = error.response.data.errors.find((err: any) => 
+            err.key === 'MAX_ROWS_REACHED'
+          );
+          
+          if (maxRowsError) {
+            const maxRows = parseInt(maxRowsError.args[0]) || 150000;
+            logger.warn(`MAX_ROWS_REACHED error detected: ${maxRows} registros`);
+            throw new MaxRowsReachedError(maxRows);
+          }
+        }
       }
       throw new Error(
         `API request error: ${
@@ -236,5 +250,78 @@ export class RecordService {
     );
 
     return this.makeRequest(params);
+  }
+
+  public async selectDay(dateStr: string): Promise<IRecordsResponse> {
+    logger.info(`Obteniendo registros del día completo: ${dateStr}`);
+
+    // Parsear la fecha en formato DD-MM-YYYY
+    const parseCustomDate = (dateStr: string) => {
+      const [day, month, year] = dateStr.split('-');
+      return new Date(`${year}-${month}-${day}`);
+    };
+
+    const selectedDate = parseCustomDate(dateStr);
+    
+    // Primera consulta: 00:00:00 a 11:59:59
+    const startOfDay = new Date(selectedDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const endOfMorning = new Date(selectedDate);
+    endOfMorning.setHours(11, 59, 59, 999);
+
+    // Segunda consulta: 12:00:00 a 23:59:59
+    const startOfAfternoon = new Date(selectedDate);
+    startOfAfternoon.setHours(12, 0, 0, 0);
+    
+    const endOfDay = new Date(selectedDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Formatear fechas al formato requerido por la API
+    const formatDateTime = (date: Date) => {
+      return date.toISOString()
+        .replace('T', '_')
+        .replace('Z', '')
+        .slice(0, 19);
+    };
+
+    try {
+      // Primera consulta: mañana (00:00:00 a 11:59:59)
+      logger.info(`Realizando primera consulta: mañana (${formatDateTime(startOfDay)} a ${formatDateTime(endOfMorning)})`);
+      const morningResponse = await this.makeRequest({
+        from: formatDateTime(startOfDay),
+        to: formatDateTime(endOfMorning),
+        dateType: "location",
+        fields: "activeBeaconRef,locDate,loc,speed,heading,mobileName,mobileTypeName",
+        orderBy: "locDate"
+      });
+
+      // Segunda consulta: tarde (12:00:00 a 23:59:59)
+      logger.info(`Realizando segunda consulta: tarde (${formatDateTime(startOfAfternoon)} a ${formatDateTime(endOfDay)})`);
+      const afternoonResponse = await this.makeRequest({
+        from: formatDateTime(startOfAfternoon),
+        to: formatDateTime(endOfDay),
+        dateType: "location",
+        fields: "activeBeaconRef,locDate,loc,speed,heading,mobileName,mobileTypeName",
+        orderBy: "locDate"
+      });
+
+      // Unir los resultados
+      const combinedData = [
+        ...(morningResponse.data || []),
+        ...(afternoonResponse.data || [])
+      ];
+
+      logger.info(`Consulta completada: ${morningResponse.data?.length || 0} registros de la mañana + ${afternoonResponse.data?.length || 0} registros de la tarde = ${combinedData.length} total`);
+
+      return {
+        success: true,
+        data: combinedData
+      };
+
+    } catch (error) {
+      logger.error(`Error en selectDay para fecha ${dateStr}: ${error}`);
+      throw error;
+    }
   }
 }

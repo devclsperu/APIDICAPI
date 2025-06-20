@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { logger } from '../utils/logger';
+import { MaxRowsReachedError } from '../utils/errors';
 import { IRecordsResponse } from '../interfaces/record.interface';
 import { RecordService } from '../services/record.service';
 
@@ -20,6 +21,20 @@ export class RecordController {
             
             logger.info('Registros enviados exitosamente al cliente');
         } catch (error) {
+            if (error instanceof MaxRowsReachedError) {
+                logger.warn(`MAX_ROWS_REACHED error en getLastHourRecords: ${error.message}`);
+                res.status(413).json({
+                    success: false,
+                    error: 'Límite de registros excedido',
+                    details: {
+                        message: error.message,
+                        maxRows: error.maxRows,
+                        suggestion: 'Intenta usar un rango de tiempo más específico'
+                    }
+                });
+                return;
+            }
+            
             logger.error(`Error al obtener registros: ${error}`);
             const errorResponse: IRecordsResponse = {
                 success: false,
@@ -41,6 +56,20 @@ export class RecordController {
             
             logger.info(`Registros para ID ${id} enviados exitosamente al cliente`);
         } catch (error) {
+            if (error instanceof MaxRowsReachedError) {
+                logger.warn(`MAX_ROWS_REACHED error en getRecordsById: ${error.message}`);
+                res.status(413).json({
+                    success: false,
+                    error: 'Límite de registros excedido',
+                    details: {
+                        message: error.message,
+                        maxRows: error.maxRows,
+                        suggestion: 'Intenta usar un rango de fechas más específico o filtrar por período'
+                    }
+                });
+                return;
+            }
+            
             logger.error(`Error al obtener registros por ID: ${error}`);
             const errorResponse: IRecordsResponse = {
                 success: false,
@@ -60,6 +89,20 @@ export class RecordController {
                 data: records
             });
         } catch (error) {
+            if (error instanceof MaxRowsReachedError) {
+                logger.warn(`MAX_ROWS_REACHED error en getLastHoursRecords: ${error.message}`);
+                res.status(413).json({
+                    success: false,
+                    error: 'Límite de registros excedido',
+                    details: {
+                        message: error.message,
+                        maxRows: error.maxRows,
+                        suggestion: 'Intenta reducir el número de horas o usar un rango más específico'
+                    }
+                });
+                return;
+            }
+            
             logger.error('Error al obtener registros de las últimas horas:', error);
             res.status(500).json({
                 success: false,
@@ -103,6 +146,20 @@ export class RecordController {
             
             logger.info(`Registros de la fecha ${date} enviados exitosamente`);
         } catch (error) {
+            if (error instanceof MaxRowsReachedError) {
+                logger.warn(`MAX_ROWS_REACHED error en getRecordsByDateRange: ${error.message}`);
+                res.status(413).json({
+                    success: false,
+                    error: 'Límite de registros excedido',
+                    details: {
+                        message: error.message,
+                        maxRows: error.maxRows,
+                        suggestion: 'Intenta usar la ruta /select-day que divide la consulta en dos partes'
+                    }
+                });
+                return;
+            }
+            
             logger.error(`Error al obtener registros por fecha: ${error}`);
             res.status(500).json({
                 success: false,
@@ -122,7 +179,68 @@ export class RecordController {
             
             logger.info('Todas las transmisiones del día actual enviadas exitosamente');
         } catch (error) {
+            if (error instanceof MaxRowsReachedError) {
+                logger.warn(`MAX_ROWS_REACHED error en getAllDayRecords: ${error.message}`);
+                res.status(413).json({
+                    success: false,
+                    error: 'Límite de registros excedido',
+                    details: {
+                        message: error.message,
+                        maxRows: error.maxRows,
+                        suggestion: 'Intenta usar la ruta /select-day que divide la consulta en dos partes'
+                    }
+                });
+                return;
+            }
+            
             logger.error(`Error al obtener todas las transmisiones del día: ${error}`);
+            res.status(500).json({
+                success: false,
+                error: 'Error al procesar la solicitud',
+                details: error instanceof Error ? error.message : 'Error desconocido'
+            });
+        }
+    }
+
+    public async selectDay(req: Request, res: Response): Promise<void> {
+        try {
+            const { date } = req.query;
+            logger.info(`Solicitud de registros para el día completo: ${date}`);
+            
+            if (!date) {
+                logger.warn('Missing date parameter in selectDay');
+                res.status(400).json({
+                    success: false,
+                    error: 'Required parameter',
+                    details: {
+                        message: 'Date parameter is required (format: DD-MM-YYYY)',
+                        received: { date }
+                    }
+                });
+                return;
+            }
+
+            const response = await this.recordService.selectDay(date as string);
+            
+            res.status(200).json(response);
+            
+            logger.info(`Registros del día completo ${date} enviados exitosamente`);
+        } catch (error) {
+            if (error instanceof MaxRowsReachedError) {
+                logger.warn(`MAX_ROWS_REACHED error en selectDay: ${error.message}`);
+                res.status(413).json({
+                    success: false,
+                    error: 'Límite de registros excedido',
+                    details: {
+                        message: error.message,
+                        maxRows: error.maxRows,
+                        suggestion: 'Intenta reducir el rango de fechas o usar filtros más específicos'
+                    }
+                });
+                return;
+            }
+            
+            logger.error(`Error al obtener registros del día completo: ${error}`);
             res.status(500).json({
                 success: false,
                 error: 'Error al procesar la solicitud',

@@ -101,6 +101,7 @@ THEMIS_DICAPI_PASSWORD=OpCLS2022!
 - `GET /api/v1/records/:id` - Registro por ID
 - `GET /api/v1/records/last/:hours` - Registros de las últimas N horas
 - `GET /api/v1/records/date-range?date=DD-MM-YYYY` - Registros por fecha específica
+- `GET /api/v1/records/select-day?date=DD-MM-YYYY` - Registros de día completo (dividido en mañana y tarde)
 
 ## Configuración de Timeouts y Reintentos
 

@@ -71,7 +71,43 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
      https://200.60.23.180:4443/api/v1/records/all-day
 ```
 
-### 3. Registros por ID Específico
+### 3. Registros de Día Completo (Dividido)
+
+**Endpoint**: `GET /api/v1/records/select-day`
+
+**Descripción**: Obtiene todos los registros de una fecha específica dividiendo la consulta en dos partes (mañana y tarde) para mejor rendimiento.
+
+**Parámetros**:
+- `date` (query): Fecha en formato DD-MM-YYYY
+
+**Ejemplo de petición**:
+```bash
+curl -H "Authorization: Bearer YOUR_API_TOKEN" \
+     https://200.60.23.180:4443/api/v1/records/select-day?date=15-01-2024
+```
+
+**Respuesta exitosa** (200):
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "beacon_123",
+      "name": "Vehículo ABC-123",
+      "type": "Camión",
+      "location": {
+        "lat": -12.0464,
+        "lng": -77.0428
+      },
+      "speed": 45.5,
+      "heading": 180,
+      "timestamp": "2024-01-15T10:30:45.123Z"
+    }
+  ]
+}
+```
+
+### 4. Registros por ID Específico
 
 **Endpoint**: `GET /api/v1/records/{id}`
 
@@ -83,10 +119,10 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
 **Ejemplo de petición**:
 ```bash
 curl -H "Authorization: Bearer YOUR_API_TOKEN" \
-     https://200.60.23.180:4443/api/v1/records/beacon_123
+     https://200.60.23.180:4443/api/v1/records/123456
 ```
 
-### 4. Registros de las Últimas N Horas
+### 5. Registros de las Últimas N Horas
 
 **Endpoint**: `GET /api/v1/records/last/{hours}`
 
@@ -101,7 +137,7 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
      https://200.60.23.180:4443/api/v1/records/last/6
 ```
 
-### 5. Registros por Fecha Específica
+### 6. Registros por Fecha Específica
 
 **Endpoint**: `GET /api/v1/records/date-range?date=DD-MM-YYYY`
 
@@ -160,6 +196,44 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
 - **404 Not Found**: Endpoint no encontrado
 - **429 Too Many Requests**: Rate limit excedido
 - **500 Internal Server Error**: Error interno del servidor
+
+## Códigos de Error
+
+### Error 413 - Límite de Registros Excedido
+
+**Descripción**: La consulta excede el límite máximo de registros permitidos (150,000).
+
+**Respuesta de error**:
+```json
+{
+  "success": false,
+  "error": "Límite de registros excedido",
+  "details": {
+    "message": "La consulta excede el límite máximo de 150,000 registros",
+    "maxRows": 150000,
+    "suggestion": "Intenta reducir el rango de fechas o usar filtros más específicos"
+  }
+}
+```
+
+**Soluciones recomendadas**:
+- Usar la ruta `/select-day` que divide la consulta en dos partes
+- Reducir el rango de tiempo de la consulta
+- Usar filtros más específicos
+- Consultar por períodos más cortos
+
+### Error 500 - Error Interno del Servidor
+
+**Descripción**: Error interno en el procesamiento de la solicitud.
+
+**Respuesta de error**:
+```json
+{
+  "success": false,
+  "error": "Error al procesar la solicitud",
+  "details": "Descripción específica del error"
+}
+```
 
 ## Manejo de Errores
 
