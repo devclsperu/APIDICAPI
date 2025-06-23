@@ -1,243 +1,85 @@
-# APIDICAPI
+# APIDICAPI - API de Consulta de Registros de Posicionamiento
 
-API simple para consultar registros externos con soporte HTTPS.
+## Introducción General
 
-## Instalación
+**APIDICAPI** es una API REST desarrollada en Node.js con TypeScript que proporciona una interfaz segura y eficiente para consultar registros de posicionamiento de embarcaciones desde sistemas externos de tracking marítimo. La API actúa como un proxy inteligente que se conecta a sistemas Themis (Francia y DICAPI) para obtener datos de posicionamiento en tiempo real y procesados.
 
-```bash
-npm install
-```
+### 🎯 Propósito Principal
 
-## Compilar
+La API está diseñada para:
+- **Centralizar consultas** de posicionamiento marítimo desde múltiples fuentes
+- **Proporcionar una interfaz unificada** para acceder a datos de embarcaciones
+- **Garantizar seguridad** mediante autenticación por token Bearer
+- **Optimizar rendimiento** con rate limiting y manejo de errores robusto
+- **Facilitar integración** con sistemas cliente mediante respuestas JSON estandarizadas
 
-```bash
-npm run build
-```
+### 📊 Funcionalidades Principales
 
-## Ejecutar
+#### 1. **Consultas de Posicionamiento**
+- **Última hora**: Registros de la última hora (`/last-hour`)
+- **Rango de horas**: Registros de las últimas N horas (`/last/:hours`)
+- **Día completo**: Todas las transmisiones del día actual (`/all-day`)
+- **Por fecha específica**: Registros de una fecha determinada (`/date-range`)
+- **Día dividido**: Consulta optimizada dividida en mañana/tarde (`/select-day`)
+- **Por ID de embarcación**: Registros específicos por beacon (`/:id`)
 
-### Desarrollo (con hot reload)
-```bash
-npm run dev
-```
-- Usa archivo: `.env`
-- NODE_ENV: `dev`
-- Puerto por defecto: 6002
+#### 2. **Seguridad y Control de Acceso**
+- **Autenticación obligatoria** mediante Bearer Token
+- **Rate limiting configurado** por endpoint
+- **Validación de parámetros** estricta
+- **Logging de consultas** para auditoría
+- **Manejo de errores** estandarizado
 
-### Producción
-```bash
-npm run build
-npm start
-```
-- Usa archivo: `.env.production`
-- NODE_ENV: `prod`
-- Puerto por defecto: 6002
+#### 3. **Robustez y Confiabilidad**
+- **Reintentos automáticos** en caso de fallos de red
+- **Timeouts configurados** para evitar bloqueos
+- **Manejo de límites** de registros (MAX_ROWS_REACHED)
+- **Logs estructurados** para monitoreo
+- **Respuestas consistentes** en formato JSON
 
-### Pruebas
-```bash
-npm run test
-```
-- Usa archivo: `.env.test`
-- NODE_ENV: `test`
-- Puerto por defecto: 6003
+### 🎯 Casos de Uso
 
-## Variables de entorno
+#### **Monitoreo en Tiempo Real**
+- Consulta de posiciones actuales de embarcaciones
+- Seguimiento de rutas marítimas
+- Alertas de posicionamiento
 
-### Desarrollo (`.env`)
-```env
-NODE_ENV=dev
-API_TOKEN=tu_token_desarrollo
-PORT=6002
+#### **Análisis Histórico**
+- Reconstrucción de rutas pasadas
+- Análisis de patrones de navegación
+- Reportes de actividad marítima
 
-# Configuración para themisFrancia (API original)
-THEMIS_FRANCIA_URL=https://themis-clsperu.cls.fr/uda
-THEMIS_FRANCIA_LOGIN=tu_login_francia
-THEMIS_FRANCIA_PASSWORD=tu_password_francia
+#### **Integración con Sistemas**
+- Dashboards de monitoreo
+- Sistemas de control de flota
+- Aplicaciones móviles de tracking
 
-# Configuración para themisDICAPI (nueva API)
-THEMIS_DICAPI_URL=http://10.202.18.7:8081/uda
-THEMIS_DICAPI_LOGIN=OPERADORCLS
-THEMIS_DICAPI_PASSWORD=OpCLS2022!
-```
+### 🔄 Flujo de Datos
 
-### Producción (`.env.production`)
-```env
-NODE_ENV=prod
-API_TOKEN=tu_token_produccion
-PORT=6002
+1. **Cliente** envía petición con Bearer Token
+2. **API** valida autenticación y rate limiting
+3. **API** consulta sistema Themis DICAPI
+4. **API** transforma y formatea datos
+5. **API** retorna respuesta JSON estandarizada
+6. **API** registra consulta en logs
 
-# Configuración para themisFrancia (API original)
-THEMIS_FRANCIA_URL=https://themis-clsperu.cls.fr/uda
-THEMIS_FRANCIA_LOGIN=tu_login_francia_prod
-THEMIS_FRANCIA_PASSWORD=tu_password_francia_prod
+### 📞 Soporte y Mantenimiento
 
-# Configuración para themisDICAPI (nueva API)
-THEMIS_DICAPI_URL=http://10.202.18.7:8081/uda
-THEMIS_DICAPI_LOGIN=OPERADORCLS
-THEMIS_DICAPI_PASSWORD=OpCLS2022!
-```
+- **Logs detallados** para troubleshooting
+- **Manejo de errores** con mensajes descriptivos
+- **Documentación** completa de endpoints
+- **Ejemplos** de uso en carpeta `/docs/examples`
 
-### Pruebas (`.env.test`)
-```env
-NODE_ENV=test
-API_TOKEN=tu_token_pruebas
-PORT=6003
+### 📚 Documentación Adicional
 
-# Configuración para themisFrancia (API original)
-THEMIS_FRANCIA_URL=https://themis-clsperu.cls.fr/uda
-THEMIS_FRANCIA_LOGIN=tu_login_francia_test
-THEMIS_FRANCIA_PASSWORD=tu_password_francia_test
+- **[Guía de Despliegue](despliegue.md)** - Instalación, configuración y despliegue
+- **[Arquitectura y Tecnologías](arquitectura.md)** - Detalles técnicos y estructura del proyecto
+- **[Configuración](configuracion.md)** - Variables de entorno y configuración
+- **[Documentación de Endpoints](endpoints.md)** - Detalles completos de cada endpoint
+- **[Guía del Cliente](CLIENT_GUIDE.md)** - Instrucciones para consumir la API
+- **[Ejemplos de Uso](EXAMPLES.md)** - Casos prácticos y ejemplos de código
 
-# Configuración para themisDICAPI (nueva API)
-THEMIS_DICAPI_URL=http://10.202.18.7:8081/uda
-THEMIS_DICAPI_LOGIN=OPERADORCLS
-THEMIS_DICAPI_PASSWORD=OpCLS2022!
-```
+---
 
-## Endpoints
-
-- `GET /api/v1/records/last-hour` - Registros de la última hora
-- `GET /api/v1/records/all-day` - Registros de todo el día
-- `GET /api/v1/records/:id` - Registro por ID
-- `GET /api/v1/records/last/:hours` - Registros de las últimas N horas
-- `GET /api/v1/records/date-range?date=DD-MM-YYYY` - Registros por fecha específica
-- `GET /api/v1/records/select-day?date=DD-MM-YYYY` - Registros de día completo (dividido en mañana y tarde)
-
-## Configuración de Timeouts y Reintentos
-
-La API utiliza **axios-retry** para manejar automáticamente los fallos temporales de red y del servidor externo.
-
-### Configuración actual:
-
-```typescript
-// Timeout de peticiones
-timeout: 30000, // 30 segundos
-
-// Configuración de reintentos
-retries: 3, // Número máximo de reintentos
-retryDelay: (retryCount) => {
-    // Backoff exponencial: 1s, 2s, 4s
-    return Math.min(1000 * Math.pow(2, retryCount - 1), 10000);
-},
-retryCondition: (error) => {
-    // Reintentar solo en:
-    return (
-        !error.response || // Errores de red
-        error.code === 'ECONNABORTED' || // Timeouts
-        (error.response && error.response.status >= 500) // Errores del servidor (5xx)
-    );
-}
-```
-
-### Comportamiento de reintentos:
-
-1. **Primer intento**: Petición inicial
-2. **Reintento 1**: Después de 1 segundo (si falla)
-3. **Reintento 2**: Después de 2 segundos (si falla)
-4. **Reintento 3**: Después de 4 segundos (si falla)
-5. **Fallback**: Si todos fallan, se devuelve error
-
-### Condiciones de reintento:
-
-- ✅ **Errores de red**: Sin respuesta del servidor
-- ✅ **Timeouts**: Petición excede 30 segundos
-- ✅ **Errores 5xx**: Errores internos del servidor
-- ❌ **Errores 4xx**: No se reintenta (errores del cliente)
-- ❌ **Errores de validación**: No se reintenta
-
-### Logging de reintentos:
-
-```json
-{
-  "timestamp": "2024-01-15T10:30:45.123Z",
-  "level": "info",
-  "message": "Retry attempt 2 for https://themis-clsperu.cls.fr/uda/resources/positions"
-}
-```
-
-### Beneficios:
-
-- **Mayor robustez**: Manejo automático de fallos temporales
-- **Mejor experiencia**: Menos errores por problemas de red
-- **Logging detallado**: Seguimiento completo de reintentos
-- **Configuración flexible**: Fácil ajuste de timeouts y reintentos
-
-## Configuración SSL/HTTPS
-
-### Requisitos:
-- **Nginx** instalado y en el PATH del sistema
-- **Certificados SSL** (certificate.crt y private.key)
-
-### Configuración:
-- **Puerto HTTPS**: 4443
-- **Puerto aplicación**: 6002
-- **Proxy**: Nginx redirige HTTPS:4443 → HTTP:6002
-
-### Características SSL:
-- TLS 1.2 y 1.3
-- Headers de seguridad (HSTS, X-Frame-Options, etc.)
-- Rate limiting en Nginx
-- Compresión gzip
-- Logs separados para Nginx
-
-## Sistema de Logs
-
-La aplicación genera archivos de log diarios en la carpeta `logs/`:
-
-### Archivos de log diarios:
-- `client-queries-YYYY-MM-DD.log` - Consultas de clientes del día
-- `combined-YYYY-MM-DD.log` - Logs generales de la aplicación
-- `error-YYYY-MM-DD.log` - Errores de la aplicación
-- `nginx-access.log` - Logs de acceso de Nginx
-- `nginx-error.log` - Logs de error de Nginx
-
-### Formato de logs de clientes:
-```json
-{
-  "timestamp": "2024-01-15T10:30:45.123Z",
-  "level": "info",
-  "message": "Client Query",
-  "endpoint": "/api/v1/records/last-hour",
-  "params": {
-    "query": {},
-    "params": {},
-    "method": "GET"
-  },
-  "responseTime": "150ms",
-  "statusCode": 200,
-  "clientIP": "192.168.1.100"
-}
-```
-
-### Información registrada:
-- **Endpoint**: URL consultada
-- **Parámetros**: Query params y route params
-- **Tiempo de respuesta**: En milisegundos
-- **Código de estado**: HTTP status code
-- **IP del cliente**: Dirección IP del cliente
-- **Timestamp**: Fecha y hora exacta 
-
-## **5. Comandos para ejecutar:**
-
-```bash
-# Instalar cross-env
-npm install --save-dev cross-env
-
-# Desarrollo
-npm run dev        # Usa .env
-
-# Producción
-npm run build      # Compila
-npm start          # Usa .env.production
-
-# Pruebas
-npm run test       # Usa .env.test
-```
-
-## **✅ Beneficios de esta configuración:**
-
-1. **✅ Automático**: `npm start` usa `.env.production` sin configuración manual
-2. **✅ Compatible**: Funciona en Windows, Linux y macOS
-3. **✅ Separado**: Diferentes configuraciones para cada entorno
-4. **✅ Claro**: Cada comando usa el archivo correcto
-5. **✅ Seguro**: Credenciales separadas por entorno
+*APIDICAPI - Sistema de Consulta de Posicionamiento Marítimo*
+*Versión 1.0.0 - Desarrollado con Node.js y TypeScript* 
