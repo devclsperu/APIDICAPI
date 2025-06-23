@@ -241,5 +241,3 @@ npm run test       # Usa .env.test
 3. **✅ Separado**: Diferentes configuraciones para cada entorno
 4. **✅ Claro**: Cada comando usa el archivo correcto
 5. **✅ Seguro**: Credenciales separadas por entorno
-
-¿Quieres que proceda con estos cambios? 
