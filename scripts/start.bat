@@ -38,10 +38,30 @@ if not exist "dist\index.js" (
     )
 )
 
-REM Crear directorio de logs si no existe
+REM Crear estructura de directorios de logs
 if not exist "logs" (
-    echo Creando directorio de logs...
+    echo Creando directorio principal de logs...
     mkdir logs
+)
+if not exist "logs\app" (
+    echo Creando directorio de logs de aplicación...
+    mkdir logs\app
+)
+if not exist "logs\app\queries" (
+    echo Creando directorio de logs de consultas...
+    mkdir logs\app\queries
+)
+if not exist "logs\app\combined" (
+    echo Creando directorio de logs combinados...
+    mkdir logs\app\combined
+)
+if not exist "logs\app\errors" (
+    echo Creando directorio de logs de errores...
+    mkdir logs\app\errors
+)
+if not exist "logs\pm2" (
+    echo Creando directorio de logs de PM2...
+    mkdir logs\pm2
 )
 
 REM Detener la aplicación si ya está ejecutándose (ignorar errores)
@@ -68,7 +88,14 @@ echo.
 echo Comandos útiles:
 echo - Ver estado: npm run status
 echo - Ver logs: npm run logs
+echo - Ver logs específicos: pm2 logs apidicapi
 echo - Detener: scripts\stop.bat
 echo - Reiniciar: scripts\restart.bat
+echo.
+echo Logs organizados en:
+echo - logs\app\queries\ (consultas de clientes)
+echo - logs\app\combined\ (logs combinados)
+echo - logs\app\errors\ (errores)
+echo - logs\pm2\ (logs de PM2)
 echo.
 pause 

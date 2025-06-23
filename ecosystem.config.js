@@ -13,9 +13,9 @@ module.exports = {
       env_production: {
         NODE_ENV: 'prod'
       },
-      error_file: './logs/err.log',
-      out_file: './logs/out.log',
-      log_file: './logs/combined.log',
+      error_file: './logs/pm2/error-0.log',
+      out_file: './logs/pm2/out-0.log',
+      log_file: './logs/pm2/combined-0.log',
       time: true
     }
   ],
