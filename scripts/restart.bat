@@ -5,7 +5,7 @@ REM Cambiar al directorio raíz del proyecto
 cd /d "%~dp0.."
 
 echo ========================================
-echo    INICIANDO APIDICAPI
+echo    REINICIANDO APIDICAPI
 echo ========================================
 
 REM Verificar si estamos en el directorio correcto
@@ -44,14 +44,12 @@ if not exist "logs" (
     mkdir logs
 )
 
-REM Detener la aplicación si ya está ejecutándose (ignorar errores)
-echo Verificando si la aplicación ya está ejecutándose...
-call pm2 stop apidicapi >nul 2>&1
-call pm2 delete apidicapi >nul 2>&1
-
-REM Iniciar la aplicación con PM2
-echo Iniciando la aplicación con PM2...
-call pm2 start ecosystem.config.js --env production
+echo Reiniciando la aplicación con PM2...
+call pm2 restart apidicapi >nul 2>&1
+if errorlevel 1 (
+    echo La aplicación no estaba ejecutándose. Iniciando con PM2...
+    call pm2 start ecosystem.config.js --env production
+)
 
 REM Esperar un momento y verificar el estado
 timeout /t 3 /nobreak >nul
@@ -59,16 +57,15 @@ echo.
 echo Verificando estado de la aplicación...
 pm2 status
 
-REM Mensaje final
 echo.
 echo ========================================
-echo    APLICACION INICIADA EXITOSAMENTE
+echo    APLICACION REINICIADA EXITOSAMENTE
 echo ========================================
 echo.
 echo Comandos útiles:
 echo - Ver estado: npm run status
 echo - Ver logs: npm run logs
 echo - Detener: scripts\stop.bat
-echo - Reiniciar: scripts\restart.bat
+echo - Iniciar: scripts\start.bat
 echo.
 pause 

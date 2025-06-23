@@ -1,14 +1,39 @@
 @echo off
-echo Deteniendo APIDICAPI...
+chcp 65001 >nul
 
-REM Buscar y terminar procesos de Node.js que ejecuten la aplicación
-taskkill /F /IM node.exe /FI "WINDOWTITLE eq APIDICAPI*" >nul 2>&1
-taskkill /F /IM node.exe /FI "COMMANDLINE eq *dist/index.js*" >nul 2>&1
+REM Cambiar al directorio raíz del proyecto
+cd /d "%~dp0.."
 
-REM También buscar por puerto 3000 (puerto por defecto)
-for /f "tokens=5" %%a in ('netstat -ano ^| findstr :3000') do (
-    taskkill /F /PID %%a >nul 2>&1
+echo ========================================
+echo    DETENIENDO APIDICAPI
+echo ========================================
+
+REM Verificar si estamos en el directorio correcto
+if not exist "package.json" (
+    echo Error: No se encontró package.json. Asegúrate de estar en el directorio raíz del proyecto.
+    pause
+    exit /b 1
 )
 
-echo Servidor detenido.
+REM Detener la aplicación
+echo Deteniendo la aplicación...
+call pm2 stop apidicapi >nul 2>&1
+call pm2 delete apidicapi >nul 2>&1
+
+REM Verificar el estado
+echo.
+echo Verificando estado de la aplicación...
+pm2 status
+
+echo.
+echo ========================================
+echo    APLICACION DETENIDA EXITOSAMENTE
+echo ========================================
+echo.
+echo Comandos útiles:
+echo - Ver estado: npm run status
+echo - Ver logs: npm run logs
+echo - Iniciar: scripts\start.bat
+echo - Reiniciar: scripts\restart.bat
+echo.
 pause 
