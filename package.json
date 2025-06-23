@@ -4,6 +4,11 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "cross-env NODE_ENV=prod node dist/index.js",
+    "start:pm2": "cross-env NODE_ENV=prod pm2 start ecosystem.config.js --env production",
+    "stop": "pm2 stop apidicapi",
+    "restart": "pm2 restart apidicapi",
+    "status": "pm2 status",
+    "logs": "pm2 logs apidicapi",
     "build": "tsc",
     "dev": "cross-env NODE_ENV=dev ts-node src/index.ts",
     "test": "cross-env NODE_ENV=test ts-node src/index.ts"
@@ -29,6 +34,7 @@
     "express-bearer-token": "^3.0.0",
     "express-rate-limit": "^7.5.0",
     "opossum": "^9.0.0",
+    "pm2": "^5.4.0",
     "winston": "^3.17.0"
   }
 }
