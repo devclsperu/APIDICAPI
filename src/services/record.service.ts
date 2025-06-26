@@ -8,6 +8,10 @@ import {
   IExternalRecordsResponse,
 } from "../interfaces/record.interface";
 
+/**
+ * Servicio para manejar las operaciones de registros de ubicación
+ * Se comunica con la API externa ThemisDICAPI y transforma los datos
+ */
 export class RecordService {
   private readonly apiUrl: string;
   private readonly apiLogin: string;
@@ -26,6 +30,14 @@ export class RecordService {
     this.httpClient = new HttpClient();
   }
 
+  // ========================================
+  // MÉTODOS PRIVADOS - UTILIDADES
+  // ========================================
+
+  /**
+   * Transforma un registro externo al formato interno de la aplicación
+   * Ajusta la zona horaria (-5 horas) y formatea la fecha
+   */
   private transformRecord(externalRecord: IExternalRecord) {
     // Convertir transmissionDateTime a Date y restar 5 horas
     const date = new Date(externalRecord.locDate.replace("_", "T") + "Z");
@@ -51,6 +63,10 @@ export class RecordService {
     };
   }
 
+  /**
+   * Obtiene el rango de fechas por defecto (último mes)
+   * Utilizado para consultas que requieren un rango de fechas
+   */
   private getDateRange() {
     const to = new Date();
     const from = new Date();
@@ -66,6 +82,10 @@ export class RecordService {
     };
   }
 
+  /**
+   * Realiza la petición HTTP a la API externa
+   * Maneja errores y transforma la respuesta
+   */
   private async makeRequest(
     params: Record<string, any>
   ): Promise<IRecordsResponse> {
@@ -139,9 +159,88 @@ export class RecordService {
     }
   }
 
+  // ========================================
+  // MÉTODOS PÚBLICOS - CONSULTAS POR TIEMPO
+  // ========================================
+
+  /**
+   * Obtiene registros de la última hora
+   * Utiliza el parámetro 'since' de la API
+   */
+  public async getLastHourRecords(): Promise<IRecordsResponse> {
+    logger.info("Obteniendo registros de la última hora");
+
+    const params = {
+      since: 3600,
+      dateType: "location",
+      fields:
+        "activeBeaconRef,locDate,loc,speed,heading,mobileName,mobileTypeName",
+      orderBy: "locDate",
+    };
+
+    return this.makeRequest(params);
+  }
+
+  /**
+   * Obtiene registros de las últimas N horas
+   * Utiliza el parámetro 'since' de la API
+   */
+  public async getLastHoursRecords(hours: number): Promise<IRecordsResponse> {
+    logger.info(`Obteniendo registros de las últimas ${hours} horas`);
+
+    const params = {
+      since: hours * 3600, // Convertir horas a segundos
+      dateType: "location",
+      fields:
+        "activeBeaconRef,locDate,loc,speed,heading,mobileName,mobileTypeName",
+      orderBy: "locDate",
+    };
+
+    logger.info(`Parámetros para la consulta de ${hours} horas:`, params);
+    return this.makeRequest(params);
+  }
+
+  /**
+   * Obtiene todas las transmisiones del día actual
+   * 
+   * COMPORTAMIENTO INTERNO DE OPTIMIZACIÓN:
+   * - Si se ejecuta después de las 11:59:59, automáticamente divide la consulta
+   *   en dos partes (mañana y tarde) para evitar límites de registros
+   * - Si se ejecuta antes de las 11:59:59, hace una sola consulta
+   * - Este comportamiento es transparente para el cliente
+   * 
+   * División de consultas:
+   * - Mañana: 00:00:00 a 11:59:59
+   * - Tarde: 12:00:00 a 23:59:59
+   */
   public async getAllDayRecords(): Promise<IRecordsResponse> {
     logger.info('Obteniendo todas las transmisiones del día actual');
     
+    // Obtener fecha y hora actual
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    const currentSecond = now.getSeconds();
+    
+    // Verificar si es después de las 11:59:59 para aplicar optimización interna
+    const isAfterNoon = (currentHour > 11) || 
+                       (currentHour === 11 && currentMinute > 59) || 
+                       (currentHour === 11 && currentMinute === 59 && currentSecond > 59);
+    
+    if (isAfterNoon) {
+      logger.info('OPTIMIZACIÓN INTERNA: Después de las 11:59:59 - dividiendo consulta en dos partes para evitar límites');
+      return this.getAllDayRecordsDivided();
+    } else {
+      logger.info('OPTIMIZACIÓN INTERNA: Antes de las 11:59:59 - consulta única para todo el día');
+      return this.getAllDayRecordsSingle();
+    }
+  }
+
+  /**
+   * Obtiene todas las transmisiones del día actual en una sola consulta
+   * Utilizado cuando es antes de las 11:59:59 (optimización interna)
+   */
+  private async getAllDayRecordsSingle(): Promise<IRecordsResponse> {
     // Obtener fecha actual
     const today = new Date();
     
@@ -169,24 +268,89 @@ export class RecordService {
         orderBy: 'locDate'
     };
 
-    logger.info(`Parámetros para la consulta de todas las transmisiones del día:`, params);
+    logger.info(`OPTIMIZACIÓN INTERNA: Parámetros para la consulta única del día:`, params);
     return this.makeRequest(params);
   }
 
-  public async getLastHourRecords(): Promise<IRecordsResponse> {
-    logger.info("Obteniendo registros de la última hora");
+  /**
+   * Obtiene todas las transmisiones del día actual dividido en dos consultas
+   * Utilizado cuando es después de las 11:59:59 para evitar límites de registros
+   * (optimización interna transparente para el cliente)
+   */
+  private async getAllDayRecordsDivided(): Promise<IRecordsResponse> {
+    // Obtener fecha actual
+    const today = new Date();
+    
+    // Primera consulta: 00:00:00 a 11:59:59
+    const startOfDay = new Date(today);
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const endOfMorning = new Date(today);
+    endOfMorning.setHours(11, 59, 59, 999);
 
-    const params = {
-      since: 3600,
-      dateType: "location",
-      fields:
-        "activeBeaconRef,locDate,loc,speed,heading,mobileName,mobileTypeName",
-      orderBy: "locDate",
+    // Segunda consulta: 12:00:00 a 23:59:59
+    const startOfAfternoon = new Date(today);
+    startOfAfternoon.setHours(12, 0, 0, 0);
+    
+    const endOfDay = new Date(today);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Formatear fechas al formato requerido por la API
+    const formatDateTime = (date: Date) => {
+      return date.toISOString()
+        .replace('T', '_')
+        .replace('Z', '')
+        .slice(0, 19);
     };
 
-    return this.makeRequest(params);
+    try {
+      // Primera consulta: mañana (00:00:00 a 11:59:59)
+      logger.info(`OPTIMIZACIÓN INTERNA: Realizando primera consulta: mañana (${formatDateTime(startOfDay)} a ${formatDateTime(endOfMorning)})`);
+      const morningResponse = await this.makeRequest({
+        from: formatDateTime(startOfDay),
+        to: formatDateTime(endOfMorning),
+        dateType: "location",
+        fields: "activeBeaconRef,locDate,loc,speed,heading,mobileName,mobileTypeName",
+        orderBy: "locDate"
+      });
+
+      // Segunda consulta: tarde (12:00:00 a 23:59:59)
+      logger.info(`OPTIMIZACIÓN INTERNA: Realizando segunda consulta: tarde (${formatDateTime(startOfAfternoon)} a ${formatDateTime(endOfDay)})`);
+      const afternoonResponse = await this.makeRequest({
+        from: formatDateTime(startOfAfternoon),
+        to: formatDateTime(endOfDay),
+        dateType: "location",
+        fields: "activeBeaconRef,locDate,loc,speed,heading,mobileName,mobileTypeName",
+        orderBy: "locDate"
+      });
+
+      // Unir los resultados
+      const combinedData = [
+        ...(morningResponse.data || []),
+        ...(afternoonResponse.data || [])
+      ];
+
+      logger.info(`OPTIMIZACIÓN INTERNA: Consulta completada: ${morningResponse.data?.length || 0} registros de la mañana + ${afternoonResponse.data?.length || 0} registros de la tarde = ${combinedData.length} total`);
+
+      return {
+        success: true,
+        data: combinedData
+      };
+
+    } catch (error) {
+      logger.error(`Error en getAllDayRecordsDivided: ${error}`);
+      throw error;
+    }
   }
 
+  // ========================================
+  // MÉTODOS PÚBLICOS - CONSULTAS POR IDENTIFICADOR
+  // ========================================
+
+  /**
+   * Obtiene registros por ID específico
+   * Utiliza el rango de fechas por defecto (último mes)
+   */
   public async getRecordsById(id: string): Promise<IRecordsResponse> {
     logger.info(`Obteniendo registros para el ID: ${id}`);
 
@@ -206,52 +370,15 @@ export class RecordService {
     return this.makeRequest(params);
   }
 
-  public async getLastHoursRecords(hours: number): Promise<IRecordsResponse> {
-    logger.info(`Obteniendo registros de las últimas ${hours} horas`);
+  // ========================================
+  // MÉTODOS PÚBLICOS - CONSULTAS POR FECHA
+  // ========================================
 
-    const params = {
-      since: hours * 3600, // Convertir horas a segundos
-      dateType: "location",
-      fields:
-        "activeBeaconRef,locDate,loc,speed,heading,mobileName,mobileTypeName",
-      orderBy: "locDate",
-    };
-
-    logger.info(`Parámetros para la consulta de ${hours} horas:`, params);
-    return this.makeRequest(params);
-  }
-
-  public async getRecordsByDateRange(
-    startDateTime: string,
-    endDateTime: string
-  ): Promise<IRecordsResponse> {
-    logger.info(
-      `Obteniendo registros del rango de fecha y hora: ${startDateTime} a ${endDateTime}`
-    );
-
-    // Convertir las fechas y horas a formato requerido por la API (YYYY-MM-DD_HH:mm:ss)
-    const formatDateTime = (dateTime: string) => {
-      const d = new Date(dateTime);
-      return d.toISOString().replace("T", "_").replace("Z", "").slice(0, 19);
-    };
-
-    const params = {
-      from: formatDateTime(startDateTime),
-      to: formatDateTime(endDateTime),
-      dateType: "location",
-      fields:
-        "activeBeaconRef,locDate,loc,speed,heading,mobileName,mobileTypeName",
-      orderBy: "locDate",
-    };
-
-    logger.info(
-      `Parámetros para la consulta por rango de fecha y hora:`,
-      params
-    );
-
-    return this.makeRequest(params);
-  }
-
+  /**
+   * Obtiene registros de un día específico dividido en dos consultas
+   * Divide el día en mañana (00:00-11:59) y tarde (12:00-23:59)
+   * para evitar límites de registros
+   */
   public async selectDay(dateStr: string): Promise<IRecordsResponse> {
     logger.info(`Obteniendo registros del día completo: ${dateStr}`);
 

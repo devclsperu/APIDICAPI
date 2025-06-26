@@ -9,7 +9,7 @@
 |----------|------|-----------|-------------|---------|
 | `NODE_ENV` | string | ✅ | Entorno de ejecución | `dev`, `prod`, `test` |
 | `API_TOKEN` | string | ✅ | Token de autenticación | `tu_token_seguro` |
-| `PORT` | number | ✅ | Puerto del servidor | `6002` |
+| `PORT` | number | ✅ | Puerto del servidor | `3000` (dev), `6002` (prod) |
 
 #### Variables Themis DICAPI
 | Variable | Tipo | Requerida | Descripción | Ejemplo |
@@ -32,7 +32,7 @@
 # Entorno básico
 NODE_ENV=dev
 API_TOKEN=tu_token_desarrollo
-PORT=6002
+PORT=3000
 
 # Configuración para themisFrancia (API original)
 THEMIS_FRANCIA_URL=https://themis-clsperu.cls.fr/uda
@@ -83,9 +83,22 @@ THEMIS_DICAPI_PASSWORD=OpCLS2022!
 
 ## ⚙️ Configuración de Rate Limiting
 
-### Configuración Global
+### Estructura Organizada
+
+La configuración de rate limiting está organizada en dos secciones principales:
+
+#### 1. Rate Limiters Generales
 ```typescript
 // src/config/rateLimit.config.ts
+
+// ========================================
+// RATE LIMITERS GENERALES
+// ========================================
+
+/**
+ * Rate limiter global para toda la aplicación
+ * 100 peticiones por 15 minutos
+ */
 export const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
     max: 100, // máximo 100 peticiones por ventana de tiempo
@@ -103,10 +116,24 @@ export const globalLimiter = rateLimit({
 });
 ```
 
+#### 2. Rate Limiters Específicos por Endpoint
+
+| Endpoint | Rate Limit | Ventana | Configuración |
+|----------|------------|---------|---------------|
+| `/last-hour` | 100 peticiones | 1 hora | `lastHourLimiter` |
+| `/last/:hours` | 80 peticiones | 1 hora | `lastHoursLimiter` |
+| `/all-day` | 240 peticiones | 1 hora | `allDayLimiter` |
+| `/select-day` | 120 peticiones | 1 hora | `selectDayLimiter` |
+| `/:id` | 300 peticiones | 1 hora | `recordsByIdLimiter` |
+
 ### Configuración por Endpoint
 
 #### Last Hour Records
 ```typescript
+/**
+ * Rate limiter para /last-hour
+ * 100 peticiones por hora
+ */
 export const lastHourLimiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hora
     max: 100, // máximo 100 peticiones por hora
@@ -118,12 +145,41 @@ export const lastHourLimiter = rateLimit({
             limit: 100,
             windowMs: '1 hora'
         }
-    }
+    },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+```
+
+#### Last Hours Records
+```typescript
+/**
+ * Rate limiter para /last/:hours
+ * 80 peticiones por hora
+ */
+export const lastHoursLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hora
+    max: 80, // máximo 80 peticiones por hora
+    message: {
+        success: false,
+        error: 'Demasiadas peticiones a last hours',
+        details: {
+            message: 'Has excedido el límite de peticiones a last hours. Intenta nuevamente en 1 hora.',
+            limit: 80,
+            windowMs: '1 hora'
+        }
+    },
+    standardHeaders: true,
+    legacyHeaders: false
 });
 ```
 
 #### All Day Records
 ```typescript
+/**
+ * Rate limiter para /all-day
+ * 240 peticiones por hora
+ */
 export const allDayLimiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hora
     max: 240, // máximo 240 peticiones por hora
@@ -135,12 +191,41 @@ export const allDayLimiter = rateLimit({
             limit: 240,
             windowMs: '1 hora'
         }
-    }
+    },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+```
+
+#### Select Day Records
+```typescript
+/**
+ * Rate limiter para /select-day
+ * 120 peticiones por hora
+ */
+export const selectDayLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hora
+    max: 120, // máximo 120 peticiones por hora
+    message: {
+        success: false,
+        error: 'Demasiadas peticiones a select-day',
+        details: {
+            message: 'Has excedido el límite de peticiones a select-day. Intenta nuevamente en 1 hora.',
+            limit: 120,
+            windowMs: '1 hora'
+        }
+    },
+    standardHeaders: true,
+    legacyHeaders: false
 });
 ```
 
 #### Records by ID
 ```typescript
+/**
+ * Rate limiter para /:id
+ * 300 peticiones por hora
+ */
 export const recordsByIdLimiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hora
     max: 300, // máximo 300 peticiones por hora
@@ -152,7 +237,9 @@ export const recordsByIdLimiter = rateLimit({
             limit: 300,
             windowMs: '1 hora'
         }
-    }
+    },
+    standardHeaders: true,
+    legacyHeaders: false
 });
 ```
 
@@ -165,7 +252,7 @@ const httpClient = axios.create({
     timeout: 30000, // 30 segundos
     headers: {
         'Content-Type': 'application/json',
-        'User-Agent': 'APIDICAPI/1.0.0'
+        'User-Agent': 'APIDICAPI/1.1.0'
     }
 });
 ```
@@ -199,18 +286,20 @@ const logger = winston.createLogger({
     level: 'info',
     format: winston.format.combine(
         winston.format.timestamp(),
+        winston.format.errors({ stack: true }),
         winston.format.json()
     ),
+    defaultMeta: { service: 'APIDICAPI' },
     transports: [
-        // Logs generales
-        new winston.transports.File({
-            filename: `logs/combined-${date}.log`,
+        // Archivo para todos los logs
+        new winston.transports.File({ 
+            filename: 'logs/combined.log',
             maxsize: 5242880, // 5MB
             maxFiles: 5
         }),
-        // Logs de errores
-        new winston.transports.File({
-            filename: `logs/error-${date}.log`,
+        // Archivo solo para errores
+        new winston.transports.File({ 
+            filename: 'logs/error.log', 
             level: 'error',
             maxsize: 5242880, // 5MB
             maxFiles: 5
@@ -219,87 +308,19 @@ const logger = winston.createLogger({
 });
 ```
 
-### Configuración de Logs de Consultas
-```typescript
-// src/middleware/query-logger.middleware.ts
-export const queryLoggerMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    const startTime = Date.now();
-    
-    res.on('finish', () => {
-        const duration = Date.now() - startTime;
-        
-        logger.info({
-            message: 'Client Query',
-            endpoint: req.originalUrl,
-            method: req.method,
-            ip: req.ip,
-            userAgent: req.get('User-Agent'),
-            responseTime: duration,
-            statusCode: res.statusCode,
-            timestamp: new Date().toISOString()
-        });
-    });
-    
-    next();
-};
-```
+## 🏗️ Configuración de Nginx
 
-## 🔒 Configuración de Seguridad
-
-### Configuración de CORS
-```typescript
-// src/app.ts
-app.use(cors({
-    origin: '*', // Permite todas las origenes
-    methods: ['GET'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
-```
-
-### Configuración de Autenticación
-```typescript
-// src/middleware/auth.middleware.ts
-export const validateToken = (req: Request, res: Response, next: NextFunction) => {
-    const token = req.token;
-    
-    if (!token) {
-        logger.warn('Request without token');
-        return res.status(401).json({
-            success: false,
-            error: 'Token requerido',
-            details: {
-                message: 'Se requiere un Bearer Token para acceder a este endpoint'
-            }
-        });
-    }
-    
-    if (token !== config.apiToken) {
-        logger.warn(`Invalid token attempt: ${token}`);
-        return res.status(401).json({
-            success: false,
-            error: 'Token inválido',
-            details: {
-                message: 'El Bearer Token proporcionado no es válido'
-            }
-        });
-    }
-    
-    next();
-};
-```
-
-## 🌐 Configuración de Nginx
-
-### Configuración SSL
+### Configuración de Proxy Reverso
 ```nginx
-# nginx/nginx.conf
+# nginx-1.27.5/conf/nginx.conf
+
 server {
     listen 4443 ssl;
     server_name localhost;
     
     # Certificados SSL
-    ssl_certificate /path/to/APIDICAPI/ssl/certificate.crt;
-    ssl_certificate_key /path/to/APIDICAPI/ssl/private.key;
+    ssl_certificate /path/to/certificate.crt;
+    ssl_certificate_key /path/to/private.key;
     
     # Configuración SSL
     ssl_protocols TLSv1.2 TLSv1.3;
@@ -307,155 +328,161 @@ server {
     ssl_prefer_server_ciphers off;
     
     # Headers de seguridad
-    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
-    add_header X-Frame-Options DENY;
-    add_header X-Content-Type-Options nosniff;
-    add_header X-XSS-Protection "1; mode=block";
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+    add_header X-Frame-Options DENY always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-XSS-Protection "1; mode=block" always;
     
-    # Proxy reverso
+    # Compresión
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+    
+    # Proxy a la aplicación Node.js
     location / {
         proxy_pass http://localhost:6002;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
         
         # Timeouts
         proxy_connect_timeout 30s;
         proxy_send_timeout 30s;
         proxy_read_timeout 30s;
     }
+    
+    # Redirección HTTP a HTTPS
+    server {
+        listen 80;
+        server_name localhost;
+        return 301 https://$server_name$request_uri;
+    }
 }
 ```
 
-## 🔍 Validación de Configuración
+## 🔒 Configuración de Seguridad
 
-### Script de Validación
+### Headers de Seguridad
 ```typescript
-// src/config/env.config.ts
-export const validateProductionConfig = () => {
-    const requiredEnvVars = [
-        'PORT', 
-        'API_TOKEN', 
-        'NODE_ENV', 
-        'THEMIS_FRANCIA_URL',
-        'THEMIS_FRANCIA_LOGIN',
-        'THEMIS_FRANCIA_PASSWORD',
-        'THEMIS_DICAPI_URL',
-        'THEMIS_DICAPI_LOGIN',
-        'THEMIS_DICAPI_PASSWORD'
-    ];
-    
-    const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
-    
-    if (missingEnvVars.length > 0) {
-        logger.error(`Faltan las siguientes variables de entorno: ${missingEnvVars.join(', ')}`);
-        process.exit(1);
-    }
-};
-```
-
-### Verificación de Configuración
-```bash
-# Verificar variables de entorno
-node -e "
-const config = require('./dist/config/env.config.js');
-console.log('Configuración cargada:', {
-  nodeEnv: config.config.nodeEnv,
-  port: config.config.port,
-  isProd: config.config.isProd,
-  themisUrl: config.config.themisDicapi.url
-});
-"
-```
-
-## 📝 Archivos de Configuración
-
-### Estructura de Archivos
-```
-APIDICAPI/
-├── .env                    # Variables de entorno desarrollo
-├── .env.production         # Variables de entorno producción
-├── .env.test              # Variables de entorno pruebas
-├── src/config/
-│   ├── api.config.ts       # Configuración de API externa
-│   ├── env.config.ts       # Carga de variables de entorno
-│   ├── rateLimit.config.ts # Configuración de rate limiting
-│   └── production.config.ts # Configuración de producción (no usado)
-├── nginx/
-│   └── nginx.conf          # Configuración de Nginx
-└── ecosystem.config.js     # Configuración de PM2 (opcional)
-```
-
-### Archivo de Configuración Principal
-```typescript
-// src/config/env.config.ts
-export const config = {
-    port: process.env.PORT,
-    apiToken: process.env.API_TOKEN,
-    nodeEnv: env,
-    isProd: env === 'prod',
-    isDev: env === 'dev',
-    isTest: env === 'test',
-    themisFrancia: {
-        url: process.env.THEMIS_FRANCIA_URL,
-        login: process.env.THEMIS_FRANCIA_LOGIN,
-        password: process.env.THEMIS_FRANCIA_PASSWORD
+// src/app.ts
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            scriptSrc: ["'self'"],
+            imgSrc: ["'self'", "data:", "https:"],
+        },
     },
-    themisDicapi: {
-        url: process.env.THEMIS_DICAPI_URL,
-        login: process.env.THEMIS_DICAPI_LOGIN,
-        password: process.env.THEMIS_DICAPI_PASSWORD
+    hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
     }
-} as const;
+}));
 ```
 
-## 🔄 Configuración de Entornos
-
-### Mapeo de Entornos
+### Configuración CORS
 ```typescript
-const ALLOWED_ENVIRONMENTS = ['dev', 'prod', 'test'] as const;
-type Environment = typeof ALLOWED_ENVIRONMENTS[number];
-
-const ENV_FILE_MAP: Record<Environment, string> = {
-    dev: '.env',
-    prod: '.env.production',
-    test: '.env.test'
-};
+// src/app.ts
+app.use(cors({
+    origin: process.env.NODE_ENV === 'production' 
+        ? ['https://www.apidicapi.com.pe'] 
+        : ['http://localhost:3000', 'http://localhost:6002'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 ```
 
-### Validación de Entorno
+## 📈 Configuración de Monitoreo
+
+### Métricas de Rate Limiting
 ```typescript
-const env = (process.env.NODE_ENV || 'dev') as Environment;
-const envFile = ENV_FILE_MAP[env];
-
-if (!ALLOWED_ENVIRONMENTS.includes(env)) {
-    logger.error(`Entorno no válido: ${env}. Los entornos permitidos son: ${ALLOWED_ENVIRONMENTS.join(', ')}`);
-    process.exit(1);
-}
-```
-
-## 📊 Monitoreo de Configuración
-
-### Log de Configuración
-```typescript
-logger.info({
-    message: 'Configuración cargada',
-    envFile,
-    ambiente: config.nodeEnv,
-    puerto: config.port,
-    modo: config.isProd ? 'Producción' : config.isDev ? 'Desarrollo' : 'Pruebas',
-    apiUrl: config.themisDicapi.url
+// Middleware para monitorear rate limiting
+app.use((req, res, next) => {
+    const rateLimitInfo = {
+        endpoint: req.path,
+        method: req.method,
+        ip: req.ip,
+        timestamp: new Date().toISOString(),
+        userAgent: req.get('User-Agent')
+    };
+    
+    logger.info('Rate Limit Check', rateLimitInfo);
+    next();
 });
 ```
 
-### Métricas de Configuración
-- **Entorno activo**: Desarrollo, Producción o Pruebas
-- **Puerto configurado**: Puerto del servidor
-- **URLs de API**: URLs de Themis configuradas
-- **Rate limiting**: Límites configurados por endpoint
-- **Timeouts**: Configuración de timeouts de HTTP
+### Logs de Consultas de Clientes
+```typescript
+// src/middleware/query-logger.middleware.ts
+export const logClientQuery = (req: Request, res: Response, next: NextFunction) => {
+    const queryLog = {
+        timestamp: new Date().toISOString(),
+        method: req.method,
+        url: req.originalUrl,
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        endpoint: req.path,
+        queryParams: req.query,
+        pathParams: req.params
+    };
+    
+    logger.info('Client Query', queryLog);
+    next();
+};
+```
+
+## 🚀 Configuración de Producción
+
+### Variables de Entorno de Producción
+```env
+# .env.production
+NODE_ENV=prod
+API_TOKEN=token_super_seguro_produccion
+PORT=6002
+
+# Configuración optimizada para producción
+THEMIS_DICAPI_URL=http://10.202.18.7:8081/uda
+THEMIS_DICAPI_LOGIN=OPERADORCLS
+THEMIS_DICAPI_PASSWORD=OpCLS2022!
+
+# Logging en producción
+LOG_LEVEL=warn
+LOG_FILE_PATH=logs/production.log
+```
+
+### Configuración de PM2
+```javascript
+// ecosystem.config.js
+module.exports = {
+    apps: [{
+        name: 'APIDICAPI',
+        script: 'dist/index.js',
+        instances: 'max',
+        exec_mode: 'cluster',
+        env: {
+            NODE_ENV: 'production',
+            PORT: 6002
+        },
+        error_file: 'logs/pm2-error.log',
+        out_file: 'logs/pm2-out.log',
+        log_file: 'logs/pm2-combined.log',
+        time: true,
+        max_memory_restart: '1G',
+        restart_delay: 4000,
+        max_restarts: 10
+    }]
+};
+```
 
 ---
 
-*Documentación de Configuración - APIDICAPI v1.0.0* 
+*Configuración Actualizada - APIDICAPI v1.1.0* 

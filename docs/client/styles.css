@@ -8,7 +8,7 @@
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
-    color: #333;
+    color: #555555;
     background-color: #f8fafc;
 }
 
@@ -20,7 +20,7 @@ body {
 /* Sidebar */
 .sidebar {
     width: 280px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1087c9 0%, #a2cc3a 100%);
     color: white;
     padding: 2rem 0;
     position: fixed;
@@ -94,7 +94,7 @@ body {
 .content-header h1 {
     font-size: 2.5rem;
     font-weight: 700;
-    color: #1a202c;
+    color: #555555;
     margin-bottom: 1rem;
 }
 
@@ -117,7 +117,7 @@ body {
 .section h2 {
     font-size: 1.8rem;
     font-weight: 600;
-    color: #2d3748;
+    color: #555555;
     margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
@@ -125,7 +125,7 @@ body {
 
 .section h2 i {
     margin-right: 0.75rem;
-    color: #667eea;
+    color: #1087c9;
 }
 
 /* Info Grid */
@@ -155,14 +155,14 @@ body {
 
 .info-card i {
     font-size: 2rem;
-    color: #667eea;
+    color: #1087c9;
     margin-bottom: 1rem;
 }
 
 .info-card h3 {
     font-size: 0.9rem;
     font-weight: 600;
-    color: #4a5568;
+    color: #555555;
     margin-bottom: 0.5rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -171,7 +171,7 @@ body {
 .info-card code,
 .info-card span {
     font-size: 0.9rem;
-    color: #2d3748;
+    color: #555555;
     font-weight: 500;
     word-wrap: break-word;
     overflow-wrap: break-word;
@@ -206,7 +206,7 @@ body {
 }
 
 .copy-btn {
-    background: #667eea;
+    background: #1087c9;
     color: white;
     border: none;
     padding: 0.5rem 0.75rem;
@@ -217,7 +217,7 @@ body {
 }
 
 .copy-btn:hover {
-    background: #5a67d8;
+    background: #0d6fa5;
 }
 
 .code-block pre {
@@ -265,7 +265,7 @@ body {
 .endpoint-header h3 {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #2d3748;
+    color: #555555;
     font-family: 'Fira Code', monospace;
 }
 
@@ -281,7 +281,7 @@ body {
 .response-card h3 {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #2d3748;
+    color: #555555;
     margin-bottom: 1rem;
 }
 
@@ -306,7 +306,7 @@ body {
     padding: 1rem;
     text-align: left;
     font-weight: 600;
-    color: #2d3748;
+    color: #555555;
     border-bottom: 2px solid #e2e8f0;
     font-size: 0.9rem;
 }
@@ -314,7 +314,7 @@ body {
 .fields-table td {
     padding: 0.75rem 1rem;
     border-bottom: 1px solid #e2e8f0;
-    color: #4a5568;
+    color: #555555;
     font-size: 0.9rem;
     vertical-align: top;
 }
@@ -333,7 +333,7 @@ body {
     border-radius: 4px;
     font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
     font-size: 0.85rem;
-    color: #2d3748;
+    color: #555555;
     white-space: nowrap;
 }
 
@@ -417,7 +417,7 @@ body {
 .practice-card h3 {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #2d3748;
+    color: #555555;
     margin-bottom: 1rem;
     display: flex;
     align-items: center;
@@ -425,7 +425,7 @@ body {
 
 .practice-card h3 i {
     margin-right: 0.75rem;
-    color: #667eea;
+    color: #1087c9;
 }
 
 .practice-card ul {
@@ -444,7 +444,7 @@ body {
 
 .practice-card li:before {
     content: "✓";
-    color: #48bb78;
+    color: #a2cc3a;
     font-weight: bold;
     margin-right: 0.5rem;
 }
@@ -458,7 +458,7 @@ body {
 }
 
 .support-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1087c9 0%, #a2cc3a 100%);
     color: white;
     padding: 1.5rem;
     border-radius: 8px;
@@ -492,14 +492,14 @@ body {
 .changelog h3 {
     font-size: 1.2rem;
     font-weight: 600;
-    color: #2d3748;
+    color: #555555;
     margin-bottom: 1rem;
 }
 
 .version h4 {
     font-size: 1rem;
     font-weight: 600;
-    color: #4a5568;
+    color: #555555;
     margin-bottom: 0.75rem;
 }
 
@@ -510,7 +510,7 @@ body {
 
 .version li {
     padding: 0.25rem 0;
-    color: #4a5568;
+    color: #555555;
 }
 
 /* Responsive Design */
@@ -599,7 +599,7 @@ html {
     position: fixed;
     top: 1rem;
     right: 1rem;
-    background: #667eea;
+    background: #1087c9;
     color: white;
     border: none;
     padding: 0.75rem;
@@ -654,7 +654,7 @@ body.loaded .section {
     cursor: pointer;
     font-weight: 500;
     font-size: 0.9rem;
-    color: #4a5568;
+    color: #555555;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
@@ -663,14 +663,14 @@ body.loaded .section {
 
 .lang-btn:hover {
     background: #edf2f7;
-    color: #2d3748;
+    color: #555555;
 }
 
 .lang-btn.active {
-    background: #667eea;
+    background: #1087c9;
     color: white;
 }
 
 .lang-btn i {
     font-size: 0.8rem;
-} 
+}

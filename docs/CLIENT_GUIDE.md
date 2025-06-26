@@ -4,11 +4,11 @@ Documentación técnica para clientes de la API privada de consulta de registros
 
 ## Información General
 
-- **URL Base**: `https://200.60.23.180:4443/api/v1/records`
+- **URL Base**: `https://www.apidicapi.com.pe/api/v1/records`
 - **Protocolo**: HTTPS
 - **Autenticación**: Bearer Token
 - **Formato de respuesta**: JSON
-- **Rate Limiting**: 10 requests/segundo
+- **Rate Limiting**: Configurado por endpoint
 
 ## Autenticación
 
@@ -21,7 +21,7 @@ Authorization: Bearer YOUR_API_TOKEN
 ### Ejemplo con cURL:
 ```bash
 curl -H "Authorization: Bearer YOUR_API_TOKEN" \
-     https://200.60.23.180:4443/api/v1/records/last-hour
+     https://www.apidicapi.com.pe/api/v1/records/last-hour
 ```
 
 ## Endpoints Disponibles
@@ -32,10 +32,12 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
 
 **Descripción**: Obtiene todos los registros de la última hora.
 
+**Rate Limit**: 100 peticiones/hora
+
 **Ejemplo de petición**:
 ```bash
 curl -H "Authorization: Bearer YOUR_API_TOKEN" \
-     https://200.60.23.180:4443/api/v1/records/last-hour
+     https://www.apidicapi.com.pe/api/v1/records/last-hour
 ```
 
 **Respuesta exitosa** (200):
@@ -44,89 +46,26 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
   "success": true,
   "data": [
     {
-      "id": "beacon_123",
-      "name": "Vehículo ABC-123",
-      "type": "Camión",
-      "location": {
-        "lat": -12.0464,
-        "lng": -77.0428
-      },
-      "speed": 45.5,
-      "heading": 180,
-      "timestamp": "2024-01-15T10:30:45.123Z"
+      "id": "BEACON_001",
+      "longitude": -77.123456,
+      "latitude": -12.345678,
+      "transmissionDateTime": "2024/01/15 10:30:45",
+      "course": 180.5,
+      "speed": 12.3,
+      "mobileName": "EMBARCACION_001",
+      "mobileTypeName": "PESQUERO"
     }
   ]
 }
 ```
 
-### 2. Registros de Todo el Día
-
-**Endpoint**: `GET /api/v1/records/all-day`
-
-**Descripción**: Obtiene todos los registros del día actual (00:00:00 a 23:59:59).
-
-**Ejemplo de petición**:
-```bash
-curl -H "Authorization: Bearer YOUR_API_TOKEN" \
-     https://200.60.23.180:4443/api/v1/records/all-day
-```
-
-### 3. Registros de Día Completo (Dividido)
-
-**Endpoint**: `GET /api/v1/records/select-day`
-
-**Descripción**: Obtiene todos los registros de una fecha específica dividiendo la consulta en dos partes (mañana y tarde) para mejor rendimiento.
-
-**Parámetros**:
-- `date` (query): Fecha en formato DD-MM-YYYY
-
-**Ejemplo de petición**:
-```bash
-curl -H "Authorization: Bearer YOUR_API_TOKEN" \
-     https://200.60.23.180:4443/api/v1/records/select-day?date=15-01-2024
-```
-
-**Respuesta exitosa** (200):
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "beacon_123",
-      "name": "Vehículo ABC-123",
-      "type": "Camión",
-      "location": {
-        "lat": -12.0464,
-        "lng": -77.0428
-      },
-      "speed": 45.5,
-      "heading": 180,
-      "timestamp": "2024-01-15T10:30:45.123Z"
-    }
-  ]
-}
-```
-
-### 4. Registros por ID Específico
-
-**Endpoint**: `GET /api/v1/records/{id}`
-
-**Descripción**: Obtiene registros de un vehículo específico por su ID.
-
-**Parámetros**:
-- `id` (path): ID del vehículo/beacon
-
-**Ejemplo de petición**:
-```bash
-curl -H "Authorization: Bearer YOUR_API_TOKEN" \
-     https://200.60.23.180:4443/api/v1/records/123456
-```
-
-### 5. Registros de las Últimas N Horas
+### 2. Registros de las Últimas N Horas
 
 **Endpoint**: `GET /api/v1/records/last/{hours}`
 
 **Descripción**: Obtiene registros de las últimas N horas (2-24 horas).
+
+**Rate Limit**: 80 peticiones/hora
 
 **Parámetros**:
 - `hours` (path): Número de horas (2-24)
@@ -134,14 +73,30 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
 **Ejemplo de petición**:
 ```bash
 curl -H "Authorization: Bearer YOUR_API_TOKEN" \
-     https://200.60.23.180:4443/api/v1/records/last/6
+     https://www.apidicapi.com.pe/api/v1/records/last/6
 ```
 
-### 6. Registros por Fecha Específica
+### 3. Registros de Todo el Día
 
-**Endpoint**: `GET /api/v1/records/date-range?date=DD-MM-YYYY`
+**Endpoint**: `GET /api/v1/records/all-day`
 
-**Descripción**: Obtiene registros de una fecha específica.
+**Descripción**: Obtiene todos los registros del día actual (00:00:00 a 23:59:59).
+
+**Rate Limit**: 240 peticiones/hora
+
+**Ejemplo de petición**:
+```bash
+curl -H "Authorization: Bearer YOUR_API_TOKEN" \
+     https://www.apidicapi.com.pe/api/v1/records/all-day
+```
+
+### 4. Registros de Día Específico (Optimizado)
+
+**Endpoint**: `GET /api/v1/records/select-day`
+
+**Descripción**: Obtiene todos los registros de una fecha específica dividiendo la consulta en dos partes (mañana y tarde) para mejor rendimiento y evitar límites de registros.
+
+**Rate Limit**: 120 peticiones/hora
 
 **Parámetros**:
 - `date` (query): Fecha en formato DD-MM-YYYY
@@ -149,7 +104,43 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
 **Ejemplo de petición**:
 ```bash
 curl -H "Authorization: Bearer YOUR_API_TOKEN" \
-     "https://200.60.23.180:4443/api/v1/records/date-range?date=15-01-2024"
+     "https://www.apidicapi.com.pe/api/v1/records/select-day?date=15-01-2024"
+```
+
+**Respuesta exitosa** (200):
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "BEACON_001",
+      "longitude": -77.123456,
+      "latitude": -12.345678,
+      "transmissionDateTime": "2024/01/15 10:30:45",
+      "course": 180.5,
+      "speed": 12.3,
+      "mobileName": "EMBARCACION_001",
+      "mobileTypeName": "PESQUERO"
+    }
+  ]
+}
+```
+
+### 5. Registros por ID Específico
+
+**Endpoint**: `GET /api/v1/records/{id}`
+
+**Descripción**: Obtiene registros de un vehículo/embarcación específico por su ID.
+
+**Rate Limit**: 300 peticiones/hora
+
+**Parámetros**:
+- `id` (path): ID del vehículo/beacon
+
+**Ejemplo de petición**:
+```bash
+curl -H "Authorization: Bearer YOUR_API_TOKEN" \
+     https://www.apidicapi.com.pe/api/v1/records/BEACON_001
 ```
 
 ## Estructura de Respuesta
@@ -161,15 +152,13 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
   "data": [
     {
       "id": "string",
-      "name": "string",
-      "type": "string",
-      "location": {
-        "lat": "number",
-        "lng": "number"
-      },
+      "longitude": "number",
+      "latitude": "number",
+      "transmissionDateTime": "string (YYYY/MM/DD HH:MM:SS)",
+      "course": "number",
       "speed": "number",
-      "heading": "number",
-      "timestamp": "string (ISO 8601)"
+      "mobileName": "string",
+      "mobileTypeName": "string"
     }
   ]
 }
@@ -194,6 +183,7 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
 - **400 Bad Request**: Parámetros inválidos o faltantes
 - **401 Unauthorized**: Token de autenticación inválido o faltante
 - **404 Not Found**: Endpoint no encontrado
+- **413 Payload Too Large**: Límite de registros excedido
 - **429 Too Many Requests**: Rate limit excedido
 - **500 Internal Server Error**: Error interno del servidor
 
@@ -209,9 +199,9 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
   "success": false,
   "error": "Límite de registros excedido",
   "details": {
-    "message": "La consulta excede el límite máximo de 150,000 registros",
+    "message": "Se han encontrado más de 150000 registros",
     "maxRows": 150000,
-    "suggestion": "Intenta reducir el rango de fechas o usar filtros más específicos"
+    "suggestion": "Intenta usar un rango de fechas más específico o usar /select-day"
   }
 }
 ```
@@ -221,6 +211,23 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
 - Reducir el rango de tiempo de la consulta
 - Usar filtros más específicos
 - Consultar por períodos más cortos
+
+### Error 429 - Rate Limit Excedido
+
+**Descripción**: Se ha excedido el límite de peticiones para el endpoint.
+
+**Respuesta de error**:
+```json
+{
+  "success": false,
+  "error": "Demasiadas peticiones a [endpoint]",
+  "details": {
+    "message": "Has excedido el límite de peticiones a [endpoint]. Intenta nuevamente en 1 hora.",
+    "limit": 100,
+    "windowMs": "1 hora"
+  }
+}
+```
 
 ### Error 500 - Error Interno del Servidor
 
@@ -243,9 +250,9 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
 ```json
 {
   "success": false,
-  "error": "Unauthorized",
+  "error": "Token requerido",
   "details": {
-    "message": "Invalid or missing authentication token"
+    "message": "Se requiere un Bearer Token para acceder a este endpoint"
   }
 }
 ```
@@ -268,13 +275,15 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
 ```json
 {
   "success": false,
-  "error": "Too many requests",
+  "error": "Demasiadas peticiones a last-hour",
   "details": {
-    "message": "Rate limit exceeded. Try again later."
+    "message": "Has excedido el límite de peticiones a last-hour. Intenta nuevamente en 1 hora.",
+    "limit": 100,
+    "windowMs": "1 hora"
   }
 }
 ```
-**Solución**: Implementar retrasos entre peticiones (máximo 10 requests/segundo).
+**Solución**: Implementar retrasos entre peticiones según los límites por endpoint.
 
 #### 4. Error 404 - Not Found
 ```json
@@ -284,31 +293,52 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
   "details": {
     "message": "The endpoint GET /api/v1/records/invalid does not exist",
     "availableEndpoints": [
-      "GET /api/v1/records/last-hour",
-      "GET /api/v1/records/all-day",
-      "GET /api/v1/records/:id"
+      "GET /api/v1/records/last-hour - Get records from the last hour",
+      "GET /api/v1/records/last/:hours - Get records from the last N hours (2-24)",
+      "GET /api/v1/records/select-day - Get records from a specific day",
+      "GET /api/v1/records/all-day - Get all transmissions from the current day",
+      "GET /api/v1/records/:id - Get records by specific ID"
     ]
   }
 }
 ```
 **Solución**: Verificar que la URL del endpoint sea correcta.
 
+## Rate Limiting por Endpoint
+
+| Endpoint | Rate Limit | Ventana de Tiempo |
+|----------|------------|-------------------|
+| `/last-hour` | 100 peticiones | 1 hora |
+| `/last/:hours` | 80 peticiones | 1 hora |
+| `/all-day` | 240 peticiones | 1 hora |
+| `/select-day` | 120 peticiones | 1 hora |
+| `/:id` | 300 peticiones | 1 hora |
+
 ## Mejores Prácticas
 
 ### 1. Rate Limiting
-- Máximo 10 peticiones por segundo
+- Respetar los límites específicos por endpoint
 - Implementar retrasos entre peticiones consecutivas
 - Manejar errores 429 con reintentos exponenciales
+- Usar diferentes endpoints según la necesidad
 
 ### 2. Manejo de Errores
 - Siempre verificar el campo `success` en las respuestas
 - Implementar reintentos para errores temporales (5xx)
 - No reintentar errores de cliente (4xx)
+- Manejar específicamente el error 413 con `/select-day`
 
 ### 3. Validación de Respuestas
 - Verificar que `response.success` sea `true`
 - Validar la estructura de `response.data`
 - Manejar casos donde `data` esté vacío
+- Verificar el formato de fecha en `transmissionDateTime`
+
+### 4. Optimización de Consultas
+- Usar `/last-hour` para datos recientes
+- Usar `/select-day` para fechas específicas (evita límites)
+- Usar `/all-day` para el día actual completo
+- Usar `/:id` para consultas específicas por embarcación
 
 ## Monitoreo y Logs
 
@@ -319,15 +349,24 @@ La API registra todas las peticiones con la siguiente información:
 - Parámetros enviados
 - Tiempo de respuesta
 - Código de estado HTTP
+- Rate limiting activado
 
 ## Soporte Técnico
 
 Para soporte técnico o reportar problemas:
-- **Email**: [tu-email@empresa.com]
+- **Email**: soporte@clsperu.com
 - **Horario**: Lunes a Viernes 8:00 AM - 6:00 PM
 - **Respuesta**: Máximo 24 horas hábiles
+- **Documentación**: https://www.apidicapi.com.pe/docs
 
 ## Changelog
+
+### v1.1.0 (2024-01-20)
+- ✅ Nuevo dominio: https://www.apidicapi.com.pe
+- ✅ Eliminada ruta `/date-range` (usar `/select-day`)
+- ✅ Rate limiting optimizado por endpoint
+- ✅ Estructura de respuesta actualizada
+- ✅ Documentación mejorada
 
 ### v1.0.0 (2024-01-15)
 - ✅ Endpoints básicos implementados

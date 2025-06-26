@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title data-es="APIDICAPI - Guía de Uso" data-en="APIDICAPI - Usage Guide">
-      APIDICAPI - Guía de Uso
+      APIDICAPI - Usage Guide
     </title>
     <link rel="stylesheet" href="styles.css" />
     <link
@@ -22,7 +22,7 @@
       <nav class="sidebar">
         <div class="sidebar-header">
           <h2><i class="fas fa-code"></i> APIDICAPI</h2>
-          <p data-es="Guía de Uso" data-en="Usage Guide">Guía de Uso</p>
+          <p data-es="Guía de Uso" data-en="Usage Guide">Usage Guide</p>
         </div>
         <ul class="nav-menu">
           <li>
@@ -37,7 +37,7 @@
             <a href="#authentication" class="nav-link"
               ><i class="fas fa-key"></i>
               <span data-es="Autenticación" data-en="Authentication"
-                >Autenticación</span
+                >Authentication</span
               ></a
             >
           </li>
@@ -51,28 +51,28 @@
             <a href="#responses" class="nav-link"
               ><i class="fas fa-reply"></i>
               <span data-es="Respuestas" data-en="Responses"
-                >Respuestas</span
+                >Responses</span
               ></a
             >
           </li>
           <li>
             <a href="#errors" class="nav-link"
               ><i class="fas fa-exclamation-triangle"></i>
-              <span data-es="Errores" data-en="Errors">Errores</span></a
+              <span data-es="Errores" data-en="Errors">Errors</span></a
             >
           </li>
           <li>
             <a href="#best-practices" class="nav-link"
               ><i class="fas fa-star"></i>
               <span data-es="Mejores Prácticas" data-en="Best Practices"
-                >Mejores Prácticas</span
+                >Best Practices</span
               ></a
             >
           </li>
           <li>
             <a href="#support" class="nav-link"
               ><i class="fas fa-headset"></i>
-              <span data-es="Soporte" data-en="Support">Soporte</span></a
+              <span data-es="Soporte" data-en="Support">Support</span></a
             >
           </li>
         </ul>
@@ -83,13 +83,13 @@
         <header class="content-header">
           <div class="header-top">
             <div class="language-selector">
-              <button class="lang-btn active" data-lang="es">
-                <i class="fas fa-flag"></i>
-                ES
-              </button>
-              <button class="lang-btn" data-lang="en">
+              <button class="lang-btn active" data-lang="en">
                 <i class="fas fa-flag"></i>
                 EN
+              </button>
+              <button class="lang-btn" data-lang="es">
+                <i class="fas fa-flag"></i>
+                ES
               </button>
             </div>
           </div>
@@ -97,14 +97,13 @@
             data-es="Guía de Uso - APIDICAPI"
             data-en="Usage Guide - APIDICAPI"
           >
-            Guía de Uso - APIDICAPI
+            Usage Guide - APIDICAPI
           </h1>
           <p
             data-es="Documentación técnica para clientes de la API privada de consulta de registros."
             data-en="Technical documentation for private API record query clients."
           >
-            Documentación técnica para clientes de la API privada de consulta de
-            registros.
+            Technical documentation for private API record query clients.
           </p>
         </header>
 
@@ -118,18 +117,18 @@
           <div class="info-grid">
             <div class="info-card url-base-card">
               <i class="fas fa-globe"></i>
-              <h3 data-es="URL Base" data-en="Base URL">URL Base</h3>
-              <code>https://200.60.23.180:4443/api/v1/records</code>
+              <h3 data-es="URL Base" data-en="Base URL">Base URL</h3>
+              <code>https://www.apidicapi.com.pe/api/v1/records</code>
             </div>
             <div class="info-card">
               <i class="fas fa-lock"></i>
-              <h3 data-es="Protocolo" data-en="Protocol">Protocolo</h3>
+              <h3 data-es="Protocolo" data-en="Protocol">Protocol</h3>
               <span>HTTPS</span>
             </div>
             <div class="info-card">
               <i class="fas fa-key"></i>
               <h3 data-es="Autenticación" data-en="Authentication">
-                Autenticación
+                Authentication
               </h3>
               <span data-es="Bearer Token" data-en="Bearer Token"
                 >Bearer Token</span
@@ -137,7 +136,7 @@
             </div>
             <div class="info-card">
               <i class="fas fa-file-code"></i>
-              <h3 data-es="Formato" data-en="Format">Formato</h3>
+              <h3 data-es="Formato" data-en="Format">Format</h3>
               <span>JSON</span>
             </div>
             <div class="info-card">
@@ -145,8 +144,8 @@
               <h3 data-es="Rate Limiting" data-en="Rate Limiting">
                 Rate Limiting
               </h3>
-              <span data-es="10 requests/segundo" data-en="10 requests/second"
-                >10 requests/segundo</span
+              <span data-es="Configurado por endpoint" data-en="Configured per endpoint"
+                >Configured per endpoint</span
               >
             </div>
           </div>
@@ -156,15 +155,14 @@
           <h2>
             <i class="fas fa-key"></i>
             <span data-es="Autenticación" data-en="Authentication"
-              >Autenticación</span
+              >Authentication</span
             >
           </h2>
           <p
             data-es="Todas las peticiones requieren autenticación mediante Bearer Token en el header:"
             data-en="All requests require authentication via Bearer Token in the header:"
           >
-            Todas las peticiones requieren autenticación mediante Bearer Token
-            en el header:
+            All requests require authentication via Bearer Token in the header:
           </p>
 
           <div class="code-block">
@@ -172,7 +170,7 @@
               <span
                 data-es="Header de Autenticación"
                 data-en="Authentication Header"
-                >Header de Autenticación</span
+                >Authentication Header</span
               >
               <button class="copy-btn" onclick="copyToClipboard('auth-header')">
                 <i class="fas fa-copy"></i>
@@ -186,7 +184,7 @@
           <div class="code-block">
             <div class="code-header">
               <span data-es="Ejemplo con cURL" data-en="cURL Example"
-                >Ejemplo con cURL</span
+                >cURL Example</span
               >
               <button
                 class="copy-btn"
@@ -198,7 +196,7 @@
             <pre
               id="curl-example"
             ><code>curl -H "Authorization: Bearer YOUR_API_TOKEN" \
-     https://200.60.23.180:4443/api/v1/records/last-hour</code></pre>
+     https://www.apidicapi.com.pe/api/v1/records/last-hour</code></pre>
           </div>
         </section>
 
@@ -206,7 +204,7 @@
           <h2>
             <i class="fas fa-list"></i>
             <span data-es="Endpoints Disponibles" data-en="Available Endpoints"
-              >Endpoints Disponibles</span
+              >Available Endpoints</span
             >
           </h2>
 
@@ -217,19 +215,19 @@
             </div>
             <p>
               <strong data-es="Descripción:" data-en="Description:"
-                >Descripción:</strong
+                >Description:</strong
               >
               <span
                 data-es="Obtiene todos los registros de la última hora."
                 data-en="Gets all records from the last hour."
-                >Obtiene todos los registros de la última hora.</span
+                >Gets all records from the last hour.</span
               >
             </p>
 
             <div class="code-block">
               <div class="code-header">
                 <span data-es="Ejemplo de petición" data-en="Request Example"
-                  >Ejemplo de petición</span
+                  >Request Example</span
                 >
                 <button
                   class="copy-btn"
@@ -241,7 +239,7 @@
               <pre
                 id="last-hour-request"
               ><code>curl -H "Authorization: Bearer YOUR_API_TOKEN" \
-     https://200.60.23.180:4443/api/v1/records/last-hour</code></pre>
+     https://www.apidicapi.com.pe/api/v1/records/last-hour</code></pre>
             </div>
 
             <div class="code-block">
@@ -249,7 +247,7 @@
                 <span
                   data-es="Respuesta exitosa (200)"
                   data-en="Successful Response (200)"
-                  >Respuesta exitosa (200)</span
+                  >Successful Response (200)</span
                 >
                 <button
                   class="copy-btn"
@@ -293,20 +291,19 @@
             </div>
             <p>
               <strong data-es="Descripción:" data-en="Description:"
-                >Descripción:</strong
+                >Description:</strong
               >
               <span
                 data-es="Obtiene todos los registros del día actual (00:00:00 a 23:59:59)."
                 data-en="Gets all records from the current day (00:00:00 to 23:59:59)."
-                >Obtiene todos los registros del día actual (00:00:00 a
-                23:59:59).</span
+                >Gets all records from the current day (00:00:00 to 23:59:59).</span
               >
             </p>
 
             <div class="code-block">
               <div class="code-header">
                 <span data-es="Ejemplo de petición" data-en="Request Example"
-                  >Ejemplo de petición</span
+                  >Request Example</span
                 >
                 <button
                   class="copy-btn"
@@ -318,7 +315,7 @@
               <pre
                 id="all-day-request"
               ><code>curl -H "Authorization: Bearer YOUR_API_TOKEN" \
-     https://200.60.23.180:4443/api/v1/records/all-day</code></pre>
+     https://www.apidicapi.com.pe/api/v1/records/all-day</code></pre>
             </div>
           </div>
 
@@ -329,17 +326,17 @@
             </div>
             <p>
               <strong data-es="Descripción:" data-en="Description:"
-                >Descripción:</strong
+                >Description:</strong
               >
               <span
                 data-es="Obtiene registros de un vehículo específico por su ID."
                 data-en="Gets records from a specific vehicle by its ID."
-                >Obtiene registros de un vehículo específico por su ID.</span
+                >Gets records from a specific vehicle by its ID.</span
               >
             </p>
             <p>
               <strong data-es="Parámetros:" data-en="Parameters:"
-                >Parámetros:</strong
+                >Parameters:</strong
               >
             </p>
             <ul>
@@ -348,7 +345,7 @@
                 <span
                   data-es="(path): ID del vehículo/beacon"
                   data-en="(path): Vehicle/beacon ID"
-                  >(path): ID del vehículo/beacon</span
+                  >(path): Vehicle/beacon ID</span
                 >
               </li>
             </ul>
@@ -356,7 +353,7 @@
             <div class="code-block">
               <div class="code-header">
                 <span data-es="Ejemplo de petición" data-en="Request Example"
-                  >Ejemplo de petición</span
+                  >Request Example</span
                 >
                 <button
                   class="copy-btn"
@@ -368,7 +365,7 @@
               <pre
                 id="by-id-request"
               ><code>curl -H "Authorization: Bearer YOUR_API_TOKEN" \
-     https://200.60.23.180:4443/api/v1/records/123456</code></pre>
+     https://www.apidicapi.com.pe/api/v1/records/123456</code></pre>
             </div>
           </div>
 
@@ -379,17 +376,17 @@
             </div>
             <p>
               <strong data-es="Descripción:" data-en="Description:"
-                >Descripción:</strong
+                >Description:</strong
               >
               <span
                 data-es="Obtiene registros de las últimas N horas (2-24 horas)."
                 data-en="Gets records from the last N hours (2-24 hours)."
-                >Obtiene registros de las últimas N horas (2-24 horas).</span
+                >Gets records from the last N hours (2-24 hours).</span
               >
             </p>
             <p>
               <strong data-es="Parámetros:" data-en="Parameters:"
-                >Parámetros:</strong
+                >Parameters:</strong
               >
             </p>
             <ul>
@@ -398,7 +395,7 @@
                 <span
                   data-es="(path): Número de horas (2-24)"
                   data-en="(path): Number of hours (2-24)"
-                  >(path): Número de horas (2-24)</span
+                  >(path): Number of hours (2-24)</span
                 >
               </li>
             </ul>
@@ -406,7 +403,7 @@
             <div class="code-block">
               <div class="code-header">
                 <span data-es="Ejemplo de petición" data-en="Request Example"
-                  >Ejemplo de petición</span
+                  >Request Example</span
                 >
                 <button
                   class="copy-btn"
@@ -418,28 +415,28 @@
               <pre
                 id="last-hours-request"
               ><code>curl -H "Authorization: Bearer YOUR_API_TOKEN" \
-     https://200.60.23.180:4443/api/v1/records/last/6</code></pre>
+     https://www.apidicapi.com.pe/api/v1/records/last/6</code></pre>
             </div>
           </div>
 
           <div class="endpoint-card">
             <div class="endpoint-header">
               <span class="method get">GET</span>
-              <h3>/api/v1/records/date-range?date=DD-MM-YYYY</h3>
+              <h3>/api/v1/records/select-day</h3>
             </div>
             <p>
               <strong data-es="Descripción:" data-en="Description:"
-                >Descripción:</strong
+                >Description:</strong
               >
               <span
-                data-es="Obtiene registros de una fecha específica."
-                data-en="Gets records from a specific date."
-                >Obtiene registros de una fecha específica.</span
+                data-es="Obtiene todos los registros de una fecha específica dividiendo la consulta en dos partes (mañana y tarde) para mejor rendimiento."
+                data-en="Gets all records from a specific date by dividing the query into two parts (morning and afternoon) for better performance."
+                >Gets all records from a specific date by dividing the query into two parts (morning and afternoon) for better performance.</span
               >
             </p>
             <p>
               <strong data-es="Parámetros:" data-en="Parameters:"
-                >Parámetros:</strong
+                >Parameters:</strong
               >
             </p>
             <ul>
@@ -448,7 +445,7 @@
                 <span
                   data-es="(query): Fecha en formato DD-MM-YYYY"
                   data-en="(query): Date in DD-MM-YYYY format"
-                  >(query): Fecha en formato DD-MM-YYYY</span
+                  >(query): Date in DD-MM-YYYY format</span
                 >
               </li>
             </ul>
@@ -456,57 +453,7 @@
             <div class="code-block">
               <div class="code-header">
                 <span data-es="Ejemplo de petición" data-en="Request Example"
-                  >Ejemplo de petición</span
-                >
-                <button
-                  class="copy-btn"
-                  onclick="copyToClipboard('date-range-request')"
-                >
-                  <i class="fas fa-copy"></i>
-                </button>
-              </div>
-              <pre
-                id="date-range-request"
-              ><code>curl -H "Authorization: Bearer YOUR_API_TOKEN" \
-     https://200.60.23.180:4443/api/v1/records/date-range?date=15-01-2024</code></pre>
-            </div>
-          </div>
-
-          <div class="endpoint-card">
-            <div class="endpoint-header">
-              <span class="method get">GET</span>
-              <h3>/api/v1/records/select-day?date=DD-MM-YYYY</h3>
-            </div>
-            <p>
-              <strong data-es="Descripción:" data-en="Description:"
-                >Descripción:</strong
-              >
-              <span
-                data-es="Obtiene registros de una fecha específica dividiendo la consulta en dos partes (mañana y tarde) para mejor rendimiento."
-                data-en="Gets records from a specific date by dividing the query into two parts (morning and afternoon) for better performance."
-                >Obtiene registros de una fecha específica dividiendo la consulta en dos partes (mañana y tarde) para mejor rendimiento.</span
-              >
-            </p>
-            <p>
-              <strong data-es="Parámetros:" data-en="Parameters:"
-                >Parámetros:</strong
-              >
-            </p>
-            <ul>
-              <li>
-                <code>date</code>
-                <span
-                  data-es="(query): Fecha en formato DD-MM-YYYY"
-                  data-en="(query): Date in DD-MM-YYYY format"
-                  >(query): Fecha en formato DD-MM-YYYY</span
-                >
-              </li>
-            </ul>
-
-            <div class="code-block">
-              <div class="code-header">
-                <span data-es="Ejemplo de petición" data-en="Request Example"
-                  >Ejemplo de petición</span
+                  >Request Example</span
                 >
                 <button
                   class="copy-btn"
@@ -518,7 +465,7 @@
               <pre
                 id="select-day-request"
               ><code>curl -H "Authorization: Bearer YOUR_API_TOKEN" \
-     https://200.60.23.180:4443/api/v1/records/select-day?date=15-01-2024</code></pre>
+     "https://www.apidicapi.com.pe/api/v1/records/select-day?date=15-01-2024"</code></pre>
             </div>
           </div>
         </section>
@@ -527,18 +474,18 @@
           <h2>
             <i class="fas fa-reply"></i>
             <span data-es="Estructura de Respuesta" data-en="Response Structure"
-              >Estructura de Respuesta</span
+              >Response Structure</span
             >
           </h2>
 
           <div class="response-card">
             <h3 data-es="Respuesta Exitosa" data-en="Successful Response">
-              Respuesta Exitosa
+              Successful Response
             </h3>
             <div class="code-block">
               <div class="code-header">
                 <span data-es="Estructura JSON" data-en="JSON Structure"
-                  >Estructura JSON</span
+                  >JSON Structure</span
                 >
                 <button
                   class="copy-btn"
@@ -567,18 +514,18 @@
 
           <div class="response-card">
             <h3 data-es="Campos de la Respuesta" data-en="Response Fields">
-              Campos de la Respuesta
+              Response Fields
             </h3>
             <div class="fields-table">
               <table>
                 <thead>
                   <tr>
-                    <th data-es="Campo" data-en="Field">Campo</th>
-                    <th data-es="Tipo" data-en="Type">Tipo</th>
+                    <th data-es="Campo" data-en="Field">Field</th>
+                    <th data-es="Tipo" data-en="Type">Type</th>
                     <th data-es="Descripción" data-en="Description">
-                      Descripción
+                      Description
                     </th>
-                    <th data-es="Ejemplo" data-en="Example">Ejemplo</th>
+                    <th data-es="Ejemplo" data-en="Example">Example</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -589,7 +536,7 @@
                       data-es="Identificador único del vehículo"
                       data-en="Unique vehicle identifier"
                     >
-                      Identificador único del vehículo
+                      Unique vehicle identifier
                     </td>
                     <td>"123456"</td>
                   </tr>
@@ -600,7 +547,7 @@
                       data-es="Longitud geográfica"
                       data-en="Geographic longitude"
                     >
-                      Longitud geográfica
+                      Geographic longitude
                     </td>
                     <td>-77.0428</td>
                   </tr>
@@ -611,7 +558,7 @@
                       data-es="Latitud geográfica"
                       data-en="Geographic latitude"
                     >
-                      Latitud geográfica
+                      Geographic latitude
                     </td>
                     <td>-12.0464</td>
                   </tr>
@@ -622,7 +569,7 @@
                       data-es="Fecha y hora de transmisión"
                       data-en="Transmission date and time"
                     >
-                      Fecha y hora de transmisión
+                      Transmission date and time
                     </td>
                     <td>"2025/01/15 14:30:25"</td>
                   </tr>
@@ -633,7 +580,7 @@
                       data-es="Dirección en grados (0-360)"
                       data-en="Direction in degrees (0-360)"
                     >
-                      Dirección en grados (0-360)
+                      Direction in degrees (0-360)
                     </td>
                     <td>245</td>
                   </tr>
@@ -641,7 +588,7 @@
                     <td><code>speed</code></td>
                     <td>number</td>
                     <td data-es="Velocidad en km/h" data-en="Speed in km/h">
-                      Velocidad en km/h
+                      Speed in km/h
                     </td>
                     <td>15</td>
                   </tr>
@@ -652,7 +599,7 @@
                       data-es="Nombre del vehículo móvil"
                       data-en="Mobile vehicle name"
                     >
-                      Nombre del vehículo móvil
+                      Mobile vehicle name
                     </td>
                     <td>"MARIA ELENA"</td>
                   </tr>
@@ -660,7 +607,7 @@
                     <td><code>mobileTypeName</code></td>
                     <td>string</td>
                     <td data-es="Tipo de vehículo" data-en="Vehicle type">
-                      Tipo de vehículo
+                      Vehicle type
                     </td>
                     <td>"FLUVIAL"</td>
                   </tr>
@@ -671,12 +618,12 @@
 
           <div class="response-card">
             <h3 data-es="Respuesta de Error" data-en="Error Response">
-              Respuesta de Error
+              Error Response
             </h3>
             <div class="code-block">
               <div class="code-header">
                 <span data-es="Estructura JSON" data-en="JSON Structure"
-                  >Estructura JSON</span
+                  >JSON Structure</span
                 >
                 <button
                   class="copy-btn"
@@ -699,7 +646,7 @@
 
           <div class="status-codes">
             <h3 data-es="Códigos de Estado HTTP" data-en="HTTP Status Codes">
-              Códigos de Estado HTTP
+              HTTP Status Codes
             </h3>
             <div class="status-grid">
               <div class="status-item success">
@@ -708,7 +655,7 @@
                   class="status-text"
                   data-es="OK - Petición exitosa"
                   data-en="OK - Successful request"
-                  >OK - Petición exitosa</span
+                  >OK - Successful request</span
                 >
               </div>
               <div class="status-item warning">
@@ -717,7 +664,7 @@
                   class="status-text"
                   data-es="Bad Request - Parámetros inválidos"
                   data-en="Bad Request - Invalid parameters"
-                  >Bad Request - Parámetros inválidos</span
+                  >Bad Request - Invalid parameters</span
                 >
               </div>
               <div class="status-item warning">
@@ -726,7 +673,7 @@
                   class="status-text"
                   data-es="Unauthorized - Token inválido"
                   data-en="Unauthorized - Invalid token"
-                  >Unauthorized - Token inválido</span
+                  >Unauthorized - Invalid token</span
                 >
               </div>
               <div class="status-item warning">
@@ -735,7 +682,7 @@
                   class="status-text"
                   data-es="Not Found - Endpoint no encontrado"
                   data-en="Not Found - Endpoint not found"
-                  >Not Found - Endpoint no encontrado</span
+                  >Not Found - Endpoint not found</span
                 >
               </div>
               <div class="status-item error">
@@ -744,7 +691,7 @@
                   class="status-text"
                   data-es="Too Many Requests - Rate limit excedido"
                   data-en="Too Many Requests - Rate limit exceeded"
-                  >Too Many Requests - Rate limit excedido</span
+                  >Too Many Requests - Rate limit exceeded</span
                 >
               </div>
               <div class="status-item error">
@@ -753,7 +700,7 @@
                   class="status-text"
                   data-es="Internal Server Error - Error interno"
                   data-en="Internal Server Error - Internal error"
-                  >Internal Server Error - Error interno</span
+                  >Internal Server Error - Internal error</span
                 >
               </div>
             </div>
@@ -764,14 +711,14 @@
           <h2>
             <i class="fas fa-exclamation-triangle"></i>
             <span data-es="Manejo de Errores" data-en="Error Handling"
-              >Manejo de Errores</span
+              >Error Handling</span
             >
           </h2>
           <p
             data-es="Errores comunes y sus soluciones:"
             data-en="Common errors and their solutions:"
           >
-            Errores comunes y sus soluciones:
+            Common errors and their solutions:
           </p>
 
           <div class="error-card">
@@ -791,12 +738,11 @@
 }</code></pre>
             </div>
             <p>
-              <strong data-es="Solución:" data-en="Solution:">Solución:</strong>
+              <strong data-es="Solución:" data-en="Solution:">Solution:</strong>
               <span
                 data-es="Verificar que el token sea válido y esté incluido en el header."
                 data-en="Verify that the token is valid and included in the header."
-                >Verificar que el token sea válido y esté incluido en el
-                header.</span
+                >Verify that the token is valid and included in the header.</span
               >
             </p>
           </div>
@@ -817,12 +763,11 @@
 }</code></pre>
             </div>
             <p>
-              <strong data-es="Solución:" data-en="Solution:">Solución:</strong>
+              <strong data-es="Solución:" data-en="Solution:">Solution:</strong>
               <span
                 data-es="Verificar que los parámetros cumplan con las validaciones."
                 data-en="Verify that parameters meet the validations."
-                >Verificar que los parámetros cumplan con las
-                validaciones.</span
+                >Verify that parameters meet the validations.</span
               >
             </p>
           </div>
@@ -844,12 +789,11 @@
 }</code></pre>
             </div>
             <p>
-              <strong data-es="Solución:" data-en="Solution:">Solución:</strong>
+              <strong data-es="Solución:" data-en="Solution:">Solution:</strong>
               <span
                 data-es="Implementar retrasos entre peticiones (máximo 10 requests/segundo)."
                 data-en="Implement delays between requests (maximum 10 requests/second)."
-                >Implementar retrasos entre peticiones (máximo 10
-                requests/segundo).</span
+                >Implement delays between requests (maximum 10 requests/second).</span
               >
             </p>
           </div>
@@ -874,11 +818,11 @@
 }</code></pre>
             </div>
             <p>
-              <strong data-es="Solución:" data-en="Solution:">Solución:</strong>
+              <strong data-es="Solución:" data-en="Solution:">Solution:</strong>
               <span
                 data-es="Verificar que la URL del endpoint sea correcta."
                 data-en="Verify that the endpoint URL is correct."
-                >Verificar que la URL del endpoint sea correcta.</span
+                >Verify that the endpoint URL is correct.</span
               >
             </p>
           </div>
@@ -888,7 +832,7 @@
           <h2>
             <i class="fas fa-star"></i>
             <span data-es="Mejores Prácticas" data-en="Best Practices"
-              >Mejores Prácticas</span
+              >Best Practices</span
             >
           </h2>
 
@@ -904,19 +848,19 @@
                 data-es="Máximo 10 peticiones por segundo"
                 data-en="Maximum 10 requests per second"
               >
-                Máximo 10 peticiones por segundo
+                Maximum 10 requests per second
               </li>
               <li
                 data-es="Implementar retrasos entre peticiones consecutivas"
                 data-en="Implement delays between consecutive requests"
               >
-                Implementar retrasos entre peticiones consecutivas
+                Implement delays between consecutive requests
               </li>
               <li
                 data-es="Manejar errores 429 con reintentos exponenciales"
                 data-en="Handle 429 errors with exponential retries"
               >
-                Manejar errores 429 con reintentos exponenciales
+                Handle 429 errors with exponential retries
               </li>
             </ul>
           </div>
@@ -925,7 +869,7 @@
             <h3>
               <i class="fas fa-exclamation-triangle"></i>
               <span data-es="Manejo de Errores" data-en="Error Handling"
-                >Manejo de Errores</span
+                >Error Handling</span
               >
             </h3>
             <ul>
@@ -933,20 +877,19 @@
                 data-es="Siempre verificar el campo success en las respuestas"
                 data-en="Always check the success field in responses"
               >
-                Siempre verificar el campo <code>success</code> en las
-                respuestas
+                Always check the success field in responses
               </li>
               <li
                 data-es="Implementar reintentos para errores temporales (5xx)"
                 data-en="Implement retries for temporary errors (5xx)"
               >
-                Implementar reintentos para errores temporales (5xx)
+                Implement retries for temporary errors (5xx)
               </li>
               <li
                 data-es="No reintentar errores de cliente (4xx)"
                 data-en="Do not retry client errors (4xx)"
               >
-                No reintentar errores de cliente (4xx)
+                Do not retry client errors (4xx)
               </li>
             </ul>
           </div>
@@ -957,7 +900,7 @@
               <span
                 data-es="Validación de Respuestas"
                 data-en="Response Validation"
-                >Validación de Respuestas</span
+                >Response Validation</span
               >
             </h3>
             <ul>
@@ -965,20 +908,19 @@
                 data-es="Verificar que response.success sea true"
                 data-en="Verify that response.success is true"
               >
-                Verificar que <code>response.success</code> sea
-                <code>true</code>
+                Verify that response.success is true
               </li>
               <li
                 data-es="Validar la estructura de response.data"
                 data-en="Validate the structure of response.data"
               >
-                Validar la estructura de <code>response.data</code>
+                Validate the structure of response.data
               </li>
               <li
                 data-es="Manejar casos donde data esté vacío"
                 data-en="Handle cases where data is empty"
               >
-                Manejar casos donde <code>data</code> esté vacío
+                Handle cases where data is empty
               </li>
             </ul>
           </div>
@@ -988,7 +930,7 @@
           <h2>
             <i class="fas fa-headset"></i>
             <span data-es="Soporte Técnico" data-en="Technical Support"
-              >Soporte Técnico</span
+              >Technical Support</span
             >
           </h2>
 
@@ -1000,24 +942,24 @@
             </div>
             <div class="support-card">
               <i class="fas fa-clock"></i>
-              <h3 data-es="Horario" data-en="Schedule">Horario</h3>
+              <h3 data-es="Horario" data-en="Schedule">Schedule</h3>
               <p
                 data-es="Lunes a Viernes 8:00 AM - 6:00 PM"
                 data-en="Monday to Friday 8:00 AM - 6:00 PM"
               >
-                Lunes a Viernes 8:00 AM - 6:00 PM
+                Monday to Friday 8:00 AM - 6:00 PM
               </p>
             </div>
             <div class="support-card">
               <i class="fas fa-hourglass-half"></i>
               <h3 data-es="Tiempo de Respuesta" data-en="Response Time">
-                Tiempo de Respuesta
+                Response Time
               </h3>
               <p
                 data-es="Máximo 24 horas hábiles"
                 data-en="Maximum 24 business hours"
               >
-                Máximo 24 horas hábiles
+                Maximum 24 business hours
               </p>
             </div>
           </div>
@@ -1031,28 +973,28 @@
                   data-es="✅ Endpoints básicos implementados"
                   data-en="✅ Basic endpoints implemented"
                 >
-                  ✅ Endpoints básicos implementados
+                  ✅ Basic endpoints implemented
                 </li>
                 <li
                   data-es="✅ Autenticación por Bearer Token"
                   data-en="✅ Bearer Token authentication"
                 >
-                  ✅ Autenticación por Bearer Token
+                  ✅ Bearer Token authentication
                 </li>
                 <li
                   data-es="✅ Rate limiting configurado"
                   data-en="✅ Rate limiting configured"
                 >
-                  ✅ Rate limiting configurado
+                  ✅ Rate limiting configured
                 </li>
                 <li data-es="✅ Logs detallados" data-en="✅ Detailed logs">
-                  ✅ Logs detallados
+                  ✅ Detailed logs
                 </li>
                 <li
                   data-es="✅ Manejo de errores mejorado"
                   data-en="✅ Improved error handling"
                 >
-                  ✅ Manejo de errores mejorado
+                  ✅ Improved error handling
                 </li>
               </ul>
             </div>
@@ -1061,6 +1003,217 @@
       </main>
     </div>
 
-    <script src="script.js"></script>
+    <!-- JavaScript integrado -->
+    <script>
+      // Smooth scrolling for navigation links
+      document.querySelectorAll('.nav-link').forEach(link => {
+          link.addEventListener('click', function(e) {
+              e.preventDefault();
+              
+              const targetId = this.getAttribute('href');
+              const targetSection = document.querySelector(targetId);
+              
+              if (targetSection) {
+                  targetSection.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'start'
+                  });
+              }
+              
+              // Update active navigation
+              document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+              this.classList.add('active');
+          });
+      });
+
+      // Copy to clipboard functionality
+      function copyToClipboard(elementId) {
+          const element = document.getElementById(elementId);
+          const text = element.textContent;
+          
+          navigator.clipboard.writeText(text).then(() => {
+              // Show success feedback
+              const button = element.parentElement.querySelector('.copy-btn');
+              const originalText = button.innerHTML;
+              
+              button.innerHTML = '<i class="fas fa-check"></i>';
+              button.style.background = '#48bb78';
+              
+              setTimeout(() => {
+                  button.innerHTML = originalText;
+                  button.style.background = '#667eea';
+              }, 2000);
+          }).catch(err => {
+              console.error('Failed to copy text: ', err);
+          });
+      }
+
+      // Intersection Observer for active navigation
+      const sections = document.querySelectorAll('.section');
+      const navLinks = document.querySelectorAll('.nav-link');
+
+      const observerOptions = {
+          threshold: 0.3,
+          rootMargin: '-20% 0px -70% 0px'
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                  const id = entry.target.getAttribute('id');
+                  
+                  navLinks.forEach(link => {
+                      link.classList.remove('active');
+                      if (link.getAttribute('href') === `#${id}`) {
+                          link.classList.add('active');
+                      }
+                  });
+              }
+          });
+      }, observerOptions);
+
+      sections.forEach(section => {
+          observer.observe(section);
+      });
+
+      // Mobile menu toggle (if needed)
+      function toggleMobileMenu() {
+          const sidebar = document.querySelector('.sidebar');
+          sidebar.classList.toggle('active');
+      }
+
+      // Add mobile menu button if needed
+      if (window.innerWidth <= 768) {
+          const mobileMenuBtn = document.createElement('button');
+          mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+          mobileMenuBtn.className = 'mobile-menu-btn';
+          mobileMenuBtn.onclick = toggleMobileMenu;
+          
+          document.querySelector('.content-header').prepend(mobileMenuBtn);
+      }
+
+      // Syntax highlighting for code blocks
+      document.addEventListener('DOMContentLoaded', function() {
+          // Add syntax highlighting classes
+          const codeBlocks = document.querySelectorAll('code');
+          codeBlocks.forEach(block => {
+              block.innerHTML = block.innerHTML
+                  .replace(/"([^"]+)":/g, '<span class="property">"$1"</span>:')
+                  .replace(/: "([^"]+)"/g, ': <span class="string">"$1"</span>')
+                  .replace(/: (\d+)/g, ': <span class="number">$1</span>')
+                  .replace(/: (true|false)/g, ': <span class="boolean">$1</span>')
+                  .replace(/\b(GET|POST|PUT|DELETE)\b/g, '<span class="method">$1</span>');
+          });
+      });
+
+      // Add loading animation
+      window.addEventListener('load', function() {
+          document.body.classList.add('loaded');
+      });
+
+      // Add CSS for additional styling
+      const additionalStyles = `
+          .property { color: #9cdcfe; }
+          .string { color: #ce9178; }
+          .number { color: #b5cea8; }
+          .boolean { color: #569cd6; }
+          .method { color: #dcdcaa; }
+          
+          .mobile-menu-btn {
+              position: fixed;
+              top: 1rem;
+              right: 1rem;
+              background: #667eea;
+              color: white;
+              border: none;
+              padding: 0.75rem;
+              border-radius: 8px;
+              cursor: pointer;
+              z-index: 1000;
+              display: none;
+          }
+          
+          @media (max-width: 768px) {
+              .mobile-menu-btn {
+                  display: block;
+              }
+          }
+          
+          body.loaded .section {
+              animation: fadeInUp 0.6s ease-out;
+          }
+          
+          @keyframes fadeInUp {
+              from {
+                  opacity: 0;
+                  transform: translateY(20px);
+              }
+              to {
+                  opacity: 1;
+                  transform: translateY(0);
+              }
+          }
+      `;
+
+      const styleSheet = document.createElement('style');
+      styleSheet.textContent = additionalStyles;
+      document.head.appendChild(styleSheet);
+
+      // Language switching functionality
+      document.addEventListener('DOMContentLoaded', function() {
+          const langButtons = document.querySelectorAll('.lang-btn');
+          
+          langButtons.forEach(button => {
+              button.addEventListener('click', function() {
+                  const selectedLang = this.getAttribute('data-lang');
+                  
+                  // Update active button
+                  langButtons.forEach(btn => btn.classList.remove('active'));
+                  this.classList.add('active');
+                  
+                  // Update document language
+                  document.documentElement.lang = selectedLang;
+                  
+                  // Update all translatable elements
+                  updateLanguage(selectedLang);
+                  
+                  // Save preference
+                  localStorage.setItem('preferred-language', selectedLang);
+              });
+          });
+          
+          // Load saved language preference
+          const savedLang = localStorage.getItem('preferred-language');
+          if (savedLang) {
+              const savedButton = document.querySelector(`[data-lang="${savedLang}"]`);
+              if (savedButton) {
+                  langButtons.forEach(btn => btn.classList.remove('active'));
+                  savedButton.classList.add('active');
+                  document.documentElement.lang = savedLang;
+                  updateLanguage(savedLang);
+              }
+          } else {
+              // Default to English if no preference is saved
+              const enButton = document.querySelector('[data-lang="en"]');
+              if (enButton) {
+                  langButtons.forEach(btn => btn.classList.remove('active'));
+                  enButton.classList.add('active');
+                  document.documentElement.lang = 'en';
+                  updateLanguage('en');
+              }
+          }
+      });
+
+      function updateLanguage(lang) {
+          const translatableElements = document.querySelectorAll('[data-es][data-en]');
+          
+          translatableElements.forEach(element => {
+              const translation = element.getAttribute(`data-${lang}`);
+              if (translation) {
+                  element.textContent = translation;
+              }
+          });
+      }
+    </script>
   </body>
 </html>

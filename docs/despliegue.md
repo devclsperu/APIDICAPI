@@ -4,9 +4,10 @@
 
 ### Software Requerido
 - **Node.js** 18.x o superior
-- **Nginx** (para SSL/HTTPS)
+- **Nginx** 1.27.5 (incluido en el proyecto)
 - **Git** (para clonar el repositorio)
 - **Certificados SSL** válidos (para producción)
+- **PM2** (opcional, para gestión de procesos)
 
 ### Acceso a Redes
 - **Acceso a Themis DICAPI**: `http://10.202.18.7:8081/uda`
@@ -46,6 +47,9 @@ npm --version
 
 # Verificar que TypeScript esté instalado
 npx tsc --version
+
+# Verificar que Nginx esté disponible
+./nginx-1.27.5/nginx.exe -v
 ```
 
 ## ⚙️ Configuración de Entornos
@@ -68,11 +72,11 @@ console.log('Configuración cargada:', {
 "
 ```
 
-## 🔒 Configuración SSL/HTTPS
+## 🔒 Configuración SSL/HTTPS con Nginx
 
 ### Requisitos SSL
 - **Certificados SSL** válidos (certificate.crt y private.key)
-- **Nginx** instalado y en el PATH del sistema
+- **Nginx** incluido en el proyecto (nginx-1.27.5/)
 - **Puerto 4443** disponible para HTTPS
 
 ### Configuración de Certificados
@@ -98,35 +102,55 @@ openssl rsa -in ssl/private.key -check
 
 #### 3. Configurar Nginx
 ```nginx
-# Archivo: nginx/nginx.conf
+# Archivo: nginx-1.27.5/conf/nginx.conf
 server {
     listen 4443 ssl;
     server_name localhost;
     
+    # Certificados SSL
     ssl_certificate /path/to/APIDICAPI/ssl/certificate.crt;
     ssl_certificate_key /path/to/APIDICAPI/ssl/private.key;
     
+    # Configuración SSL
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384;
     ssl_prefer_server_ciphers off;
     
     # Headers de seguridad
-    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
-    add_header X-Frame-Options DENY;
-    add_header X-Content-Type-Options nosniff;
-    add_header X-XSS-Protection "1; mode=block";
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+    add_header X-Frame-Options DENY always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-XSS-Protection "1; mode=block" always;
     
+    # Compresión
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+    
+    # Proxy a la aplicación Node.js
     location / {
         proxy_pass http://localhost:6002;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
         
         # Timeouts
         proxy_connect_timeout 30s;
         proxy_send_timeout 30s;
         proxy_read_timeout 30s;
+    }
+    
+    # Redirección HTTP a HTTPS
+    server {
+        listen 80;
+        server_name localhost;
+        return 301 https://$server_name$request_uri;
     }
 }
 ```
@@ -142,7 +166,7 @@ scripts/setup-ssl.bat
 #### Verificación SSL
 ```bash
 # Verificar que Nginx esté funcionando
-nginx -t
+./nginx-1.27.5/nginx.exe -t
 
 # Verificar puertos SSL
 netstat -an | findstr :4443
@@ -176,7 +200,7 @@ curl http://localhost:6002/api/v1/records/last-hour
 #### 3. Verificar Logs
 ```bash
 # Ver logs en tiempo real
-tail -f logs/combined-$(date +%Y-%m-%d).log
+tail -f logs/combined.log
 ```
 
 ### Producción
@@ -199,420 +223,286 @@ cp .env.example .env.production
 notepad .env.production
 ```
 
-#### 3. Iniciar Sistema Completo
+#### 3. Configurar PM2 (Opcional)
 ```bash
-# Inicio con SSL
-scripts/start-ssl-system.bat
-
-# O inicio básico
-scripts/start.bat
-```
-
-#### 4. Verificar Despliegue
-```bash
-# Verificar procesos
-tasklist | findstr node
-tasklist | findstr nginx
-
-# Verificar puertos
-netstat -an | findstr :6002
-netstat -an | findstr :4443
-
-# Probar endpoints
-curl -H "Authorization: Bearer tu_token" https://localhost:4443/api/v1/records/last-hour
-```
-
-### Pruebas
-
-#### 1. Configurar Entorno de Pruebas
-```bash
-# Crear archivo .env.test
-cp .env.example .env.test
-
-# Editar variables de pruebas
-notepad .env.test
-```
-
-#### 2. Iniciar en Modo Pruebas
-```bash
-# Inicio en modo pruebas
-npm run test
-
-# Verificar en puerto 6003
-curl http://localhost:6003/api/v1/records/last-hour
-```
-
-## 📦 Scripts de Despliegue
-
-### Scripts Disponibles
-
-#### Scripts Básicos
-```bash
-# Inicio del sistema completo
-scripts/start.bat
-
-# Parada del sistema
-scripts/stop.bat
-
-# Inicio con SSL/HTTPS
-scripts/start-ssl-system.bat
-
-# Parada del sistema SSL
-scripts/stop-ssl-system.bat
-```
-
-#### Scripts de Componentes
-```bash
-# Solo servicio Node.js
-scripts/start-service.bat
-
-# Solo Nginx
-scripts/start-nginx.bat
-
-# Inicio en segundo plano
-scripts/start-background.bat
-```
-
-#### Scripts de Configuración
-```bash
-# Configuración SSL
-scripts/setup-ssl.bat
-
-# Verificación de servicios
-scripts/verify-services.bat
-```
-
-### Scripts Personalizados
-
-#### Crear Script de Despliegue Automático
-```batch
-@echo off
-REM deploy.bat - Script de despliegue automático
-
-echo Iniciando despliegue de APIDICAPI...
-
-REM Detener servicios existentes
-call scripts\stop.bat
-
-REM Compilar proyecto
-echo Compilando proyecto...
-npm run build
-
-REM Verificar compilación
-if not exist "dist\index.js" (
-    echo Error: Compilación fallida
-    exit /b 1
-)
-
-REM Iniciar servicios
-echo Iniciando servicios...
-call scripts\start-ssl-system.bat
-
-REM Verificar servicios
-timeout /t 5 /nobreak > nul
-call scripts\verify-services.bat
-
-echo Despliegue completado exitosamente!
-```
-
-## 🔧 Configuración de Servicios
-
-### Configuración como Servicio de Windows
-
-#### 1. Instalar PM2 (Opcional)
-```bash
+# Instalar PM2 globalmente
 npm install -g pm2
 
-# Crear archivo de configuración PM2
-pm2 ecosystem
-```
-
-#### 2. Configuración PM2
-```javascript
-// ecosystem.config.js
-module.exports = {
-  apps: [{
-    name: 'APIDICAPI',
-    script: 'dist/index.js',
-    instances: 1,
-    autorestart: true,
-    watch: false,
-    max_memory_restart: '1G',
-    env: {
-      NODE_ENV: 'prod'
-    },
-    env_production: {
-      NODE_ENV: 'prod'
-    }
-  }]
-};
-```
-
-#### 3. Iniciar con PM2
-```bash
-# Inicio en producción
-pm2 start ecosystem.config.js --env production
+# Configurar PM2
+pm2 start ecosystem.config.js
 
 # Verificar estado
 pm2 status
-
-# Ver logs
 pm2 logs APIDICAPI
 ```
 
-### Configuración de Firewall
+## 🛠️ Scripts de Gestión
 
-#### Puertos Necesarios
+### Scripts Incluidos
+
+#### 1. Inicio del Sistema
 ```bash
-# Puerto HTTP (desarrollo)
-netsh advfirewall firewall add rule name="APIDICAPI HTTP" dir=in action=allow protocol=TCP localport=6002
-
-# Puerto HTTPS (producción)
-netsh advfirewall firewall add rule name="APIDICAPI HTTPS" dir=in action=allow protocol=TCP localport=4443
-
-# Puerto Nginx (si es diferente)
-netsh advfirewall firewall add rule name="Nginx" dir=in action=allow protocol=TCP localport=80
+# Ejecutar script de inicio
+scripts/start.bat
 ```
 
-## 📊 Monitoreo del Despliegue
+Este script:
+- Inicia Nginx como proxy reverso
+- Inicia la aplicación Node.js
+- Verifica que ambos servicios estén funcionando
 
-### Verificación de Servicios
-
-#### Comandos de Verificación
+#### 2. Parada del Sistema
 ```bash
-# Verificar procesos
-tasklist | findstr node
-tasklist | findstr nginx
+# Ejecutar script de parada
+scripts/stop.bat
+```
 
+Este script:
+- Detiene la aplicación Node.js
+- Detiene Nginx
+- Limpia procesos residuales
+
+#### 3. Reinicio del Sistema
+```bash
+# Ejecutar script de reinicio
+scripts/restart.bat
+```
+
+Este script:
+- Ejecuta stop.bat
+- Espera 5 segundos
+- Ejecuta start.bat
+
+### Gestión Manual
+
+#### Iniciar Nginx
+```bash
+# Iniciar Nginx
+./nginx-1.27.5/nginx.exe
+
+# Verificar estado
+./nginx-1.27.5/nginx.exe -t
+```
+
+#### Iniciar Aplicación Node.js
+```bash
+# Iniciar en modo producción
+npm start
+
+# O con PM2
+pm2 start ecosystem.config.js
+```
+
+#### Verificar Servicios
+```bash
 # Verificar puertos
 netstat -an | findstr :6002
 netstat -an | findstr :4443
 
-# Verificar logs
-dir logs\*.log
+# Verificar procesos
+tasklist | findstr nginx
+tasklist | findstr node
 ```
 
-#### Script de Verificación Automática
-```batch
-@echo off
-REM verify-services.bat
+## 📊 Monitoreo y Logs
 
-echo Verificando servicios APIDICAPI...
+### Estructura de Logs
 
-REM Verificar Node.js
-tasklist | findstr node > nul
-if %errorlevel% neq 0 (
-    echo ERROR: Servicio Node.js no está ejecutándose
-    exit /b 1
-)
-
-REM Verificar Nginx
-tasklist | findstr nginx > nul
-if %errorlevel% neq 0 (
-    echo ERROR: Servicio Nginx no está ejecutándose
-    exit /b 1
-)
-
-REM Verificar puertos
-netstat -an | findstr :6002 > nul
-if %errorlevel% neq 0 (
-    echo ERROR: Puerto 6002 no está abierto
-    exit /b 1
-)
-
-netstat -an | findstr :4443 > nul
-if %errorlevel% neq 0 (
-    echo ERROR: Puerto 4443 no está abierto
-    exit /b 1
-)
-
-echo Todos los servicios están funcionando correctamente!
+```
+APIDICAPI/
+├── logs/
+│   ├── combined.log          # Logs generales
+│   ├── error.log             # Solo errores
+│   ├── client-queries.log    # Consultas de clientes
+│   └── nginx/                # Logs de Nginx
+│       ├── access.log        # Acceso a Nginx
+│       └── error.log         # Errores de Nginx
 ```
 
-### Logs de Despliegue
+### Comandos de Monitoreo
 
-#### Archivos de Log Importantes
+#### Ver Logs en Tiempo Real
 ```bash
 # Logs de la aplicación
-logs/combined-YYYY-MM-DD.log
-logs/error-YYYY-MM-DD.log
-
-# Logs de consultas de clientes
-logs/client-queries-YYYY-MM-DD.log
-
-# Logs de Nginx
-logs/nginx-access.log
-logs/nginx-error.log
-```
-
-#### Monitoreo en Tiempo Real
-```bash
-# Logs generales
-tail -f logs/combined-$(date +%Y-%m-%d).log
+tail -f logs/combined.log
 
 # Logs de errores
-tail -f logs/error-$(date +%Y-%m-%d).log
+tail -f logs/error.log
+
+# Logs de consultas de clientes
+tail -f logs/client-queries.log
 
 # Logs de Nginx
-tail -f logs/nginx-access.log
+tail -f logs/nginx/access.log
 ```
 
-## 🔄 Actualizaciones y Mantenimiento
+#### Verificar Estado del Sistema
+```bash
+# Verificar memoria y CPU
+tasklist /FI "IMAGENAME eq node.exe"
+tasklist /FI "IMAGENAME eq nginx.exe"
+
+# Verificar puertos
+netstat -an | findstr :6002
+netstat -an | findstr :4443
+```
+
+## 🔧 Configuración de Firewall
+
+### Puertos Requeridos
+
+| Puerto | Protocolo | Servicio | Descripción |
+|--------|-----------|----------|-------------|
+| 6002 | TCP | HTTP | Aplicación Node.js |
+| 4443 | TCP | HTTPS | Nginx SSL |
+| 80 | TCP | HTTP | Redirección a HTTPS |
+
+### Configuración de Windows Firewall
+```powershell
+# Abrir puerto 6002
+netsh advfirewall firewall add rule name="APIDICAPI HTTP" dir=in action=allow protocol=TCP localport=6002
+
+# Abrir puerto 4443
+netsh advfirewall firewall add rule name="APIDICAPI HTTPS" dir=in action=allow protocol=TCP localport=4443
+
+# Abrir puerto 80 (redirección)
+netsh advfirewall firewall add rule name="APIDICAPI HTTP Redirect" dir=in action=allow protocol=TCP localport=80
+```
+
+## 🚨 Troubleshooting
+
+### Problemas Comunes
+
+#### 1. Puerto 6002 en Uso
+```bash
+# Verificar qué proceso usa el puerto
+netstat -ano | findstr :6002
+
+# Terminar proceso si es necesario
+taskkill /PID <PID> /F
+```
+
+#### 2. Puerto 4443 en Uso
+```bash
+# Verificar qué proceso usa el puerto
+netstat -ano | findstr :4443
+
+# Terminar proceso si es necesario
+taskkill /PID <PID> /F
+```
+
+#### 3. Nginx No Inicia
+```bash
+# Verificar configuración
+./nginx-1.27.5/nginx.exe -t
+
+# Verificar logs de error
+tail -f logs/nginx/error.log
+```
+
+#### 4. Aplicación Node.js No Inicia
+```bash
+# Verificar variables de entorno
+node -e "console.log(process.env.NODE_ENV)"
+
+# Verificar logs de error
+tail -f logs/error.log
+```
+
+### Verificación de Funcionamiento
+
+#### 1. Probar Endpoint HTTP
+```bash
+curl -X GET "http://localhost:6002/api/v1/records/last-hour" \
+  -H "Authorization: Bearer tu_token_aqui"
+```
+
+#### 2. Probar Endpoint HTTPS
+```bash
+curl -X GET "https://localhost:4443/api/v1/records/last-hour" \
+  -H "Authorization: Bearer tu_token_aqui"
+```
+
+#### 3. Verificar SSL
+```bash
+# Verificar certificado
+openssl s_client -connect localhost:4443 -servername localhost
+
+# Verificar headers de seguridad
+curl -I https://localhost:4443/api/v1/records/last-hour
+```
+
+## 📈 Optimización de Rendimiento
+
+### Configuración de Nginx
+
+#### Optimización de Buffer
+```nginx
+# Agregar a la configuración de Nginx
+client_body_buffer_size 128k;
+client_max_body_size 10m;
+client_header_buffer_size 1k;
+large_client_header_buffers 4 4k;
+```
+
+#### Optimización de Proxy
+```nginx
+# Agregar a la configuración de location
+proxy_buffering on;
+proxy_buffer_size 4k;
+proxy_buffers 8 4k;
+proxy_busy_buffers_size 8k;
+```
+
+### Configuración de Node.js
+
+#### Optimización de Memoria
+```bash
+# Iniciar con más memoria
+node --max-old-space-size=2048 dist/index.js
+
+# O con PM2
+pm2 start ecosystem.config.js --node-args="--max-old-space-size=2048"
+```
+
+#### Optimización de Logs
+```typescript
+// Configurar nivel de log en producción
+const logLevel = process.env.NODE_ENV === 'production' ? 'warn' : 'info';
+```
+
+## 🔄 Actualizaciones
 
 ### Proceso de Actualización
 
 #### 1. Preparar Actualización
 ```bash
 # Hacer backup de configuración
-cp .env.production .env.production.backup
-cp -r logs/ logs-backup/
-
-# Obtener cambios del repositorio
-git pull origin main
+cp .env .env.backup
+cp nginx-1.27.5/conf/nginx.conf nginx-1.27.5/conf/nginx.conf.backup
 ```
 
-#### 2. Actualizar Dependencias
+#### 2. Actualizar Código
 ```bash
-# Instalar nuevas dependencias
+# Obtener cambios
+git pull origin main
+
+# Instalar dependencias
 npm install
 
-# Compilar proyecto
+# Compilar
 npm run build
 ```
 
 #### 3. Reiniciar Servicios
 ```bash
-# Parar servicios
-scripts/stop.bat
-
-# Iniciar servicios
-scripts/start-ssl-system.bat
+# Reiniciar sistema
+scripts/restart.bat
 
 # Verificar funcionamiento
-scripts/verify-services.bat
+curl https://localhost:4443/api/v1/records/last-hour
 ```
-
-### Mantenimiento Programado
-
-#### Limpieza de Logs
-```bash
-# Script de limpieza de logs antiguos
-forfiles /p logs /s /m *.log /d -30 /c "cmd /c del @path"
-```
-
-#### Rotación de Certificados
-```bash
-# Verificar expiración de certificados
-openssl x509 -in ssl/certificate.crt -noout -dates
-
-# Renovar certificados antes de expirar
-# Copiar nuevos certificados y reiniciar Nginx
-```
-
-## 🚨 Troubleshooting de Despliegue
-
-### Problemas Comunes
-
-#### 1. Error de Puerto en Uso
-```
-Error: listen EADDRINUSE: address already in use :::6002
-```
-**Solución:**
-```bash
-# Encontrar proceso usando el puerto
-netstat -ano | findstr :6002
-
-# Terminar proceso
-taskkill /PID <PID> /F
-```
-
-#### 2. Error de Certificados SSL
-```
-nginx: [emerg] SSL_CTX_use_PrivateKey_file failed
-```
-**Solución:**
-```bash
-# Verificar permisos de archivos
-ls -la ssl/
-
-# Verificar formato de certificados
-openssl x509 -in ssl/certificate.crt -text -noout
-```
-
-#### 3. Error de Variables de Entorno
-```
-Error: ThemisDICAPI credentials not configured
-```
-**Solución:**
-```bash
-# Verificar archivo .env
-cat .env
-
-# Verificar que NODE_ENV esté configurado
-echo $NODE_ENV
-```
-
-#### 4. Error de Conectividad a Themis
-```
-Error: API request error: Connection timeout
-```
-**Solución:**
-```bash
-# Verificar conectividad de red
-ping 10.202.18.7
-
-# Verificar puerto
-telnet 10.202.18.7 8081
-
-# Verificar configuración de proxy si aplica
-```
-
-### Logs para Debugging
-
-#### Comandos de Debugging
-```bash
-# Ver logs de inicio
-tail -f logs/combined-$(date +%Y-%m-%d).log
-
-# Ver errores específicos
-grep -i error logs/error-$(date +%Y-%m-%d).log
-
-# Ver logs de Nginx
-tail -f logs/nginx-error.log
-```
-
-#### Verificación de Configuración
-```bash
-# Verificar configuración de Nginx
-nginx -t
-
-# Verificar variables de entorno
-node -e "console.log(process.env.NODE_ENV)"
-
-# Verificar archivos de configuración
-ls -la .env*
-```
-
-## 📞 Soporte de Despliegue
-
-### Contacto para Problemas
-- **Email**: soporte@clsperu.com
-- **Documentación**: `/docs/`
-- **Issues**: GitHub Issues
-
-### Información para Soporte
-Al reportar problemas, incluir:
-- **Versión de Node.js**: `node --version`
-- **Sistema operativo**: `systeminfo`
-- **Logs de error**: Archivos relevantes
-- **Configuración**: Variables de entorno (sin credenciales)
-- **Pasos para reproducir**: Comandos ejecutados
-
-### Documentación Relacionada
-- **[Configuración](configuracion.md)** - Variables de entorno y configuración detallada
-- **[Arquitectura](arquitectura.md)** - Detalles técnicos del sistema
-- **[Endpoints](endpoints.md)** - Documentación completa de endpoints
 
 ---
 
-*Guía de Despliegue - APIDICAPI v1.0.0*
+*Guía de Despliegue Actualizada - APIDICAPI v1.1.0*

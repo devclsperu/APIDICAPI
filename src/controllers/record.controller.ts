@@ -4,6 +4,10 @@ import { MaxRowsReachedError } from '../utils/errors';
 import { IRecordsResponse } from '../interfaces/record.interface';
 import { RecordService } from '../services/record.service';
 
+/**
+ * Controlador para manejar las operaciones de registros de ubicación
+ * Gestiona las peticiones HTTP y coordina con el servicio de registros
+ */
 export class RecordController {
     private recordService: RecordService;
 
@@ -11,14 +15,20 @@ export class RecordController {
         this.recordService = new RecordService();
     }
 
+    // ========================================
+    // MÉTODOS DE CONSULTA POR TIEMPO
+    // ========================================
+
+    /**
+     * Obtiene registros de la última hora
+     * Endpoint: GET /api/v1/records/last-hour
+     */
     public async getLastHourRecords(req: Request, res: Response): Promise<void> {
         try {
             logger.info('Solicitud de registros de la última hora');
             const response = await this.recordService.getLastHourRecords();
             
-            // La respuesta ya viene transformada del servicio con el formato deseado
             res.status(200).json(response);
-            
             logger.info('Registros enviados exitosamente al cliente');
         } catch (error) {
             if (error instanceof MaxRowsReachedError) {
@@ -45,42 +55,11 @@ export class RecordController {
         }
     }
 
-    public async getRecordsById(req: Request, res: Response): Promise<void> {
-        try {
-            const { id } = req.params;
-            logger.info(`Solicitud de registros para el ID: ${id}`);
-            
-            const response = await this.recordService.getRecordsById(id);
-            
-            res.status(200).json(response);
-            
-            logger.info(`Registros para ID ${id} enviados exitosamente al cliente`);
-        } catch (error) {
-            if (error instanceof MaxRowsReachedError) {
-                logger.warn(`MAX_ROWS_REACHED error en getRecordsById: ${error.message}`);
-                res.status(413).json({
-                    success: false,
-                    error: 'Límite de registros excedido',
-                    details: {
-                        message: error.message,
-                        maxRows: error.maxRows,
-                        suggestion: 'Intenta usar un rango de fechas más específico o filtrar por período'
-                    }
-                });
-                return;
-            }
-            
-            logger.error(`Error al obtener registros por ID: ${error}`);
-            const errorResponse: IRecordsResponse = {
-                success: false,
-                error: 'Error al procesar la solicitud',
-                data: []
-            };
-            res.status(500).json(errorResponse);
-        }
-    }
-
-    public getLastHoursRecords = async (req: Request, res: Response): Promise<void> => {
+    /**
+     * Obtiene registros de las últimas N horas
+     * Endpoint: GET /api/v1/records/last/:hours
+     */
+    public async getLastHoursRecords(req: Request, res: Response): Promise<void> {
         try {
             const hours = parseInt(req.params.hours);
             const records = await this.recordService.getLastHoursRecords(hours);
@@ -110,65 +89,12 @@ export class RecordController {
                 details: error instanceof Error ? error.message : 'Error desconocido'
             });
         }
-    };
-
-    public async getRecordsByDateRange(req: Request, res: Response): Promise<void> {
-        try {
-            const { date } = req.query;
-            logger.info(`Solicitud de registros para la fecha: ${date}`);
-            
-            // Convertir formato DD-MM-YYYY a YYYY-MM-DD y generar rango del día
-            const parseCustomDate = (dateStr: string) => {
-                const [day, month, year] = dateStr.split('-');
-                return new Date(`${year}-${month}-${day}`);
-            };
-
-            const selectedDate = parseCustomDate(date as string);
-            
-            // Establecer inicio del día (00:00:00)
-            const startOfDay = new Date(selectedDate);
-            startOfDay.setHours(0, 0, 0, 0);
-            
-            // Establecer fin del día (23:59:59)
-            const endOfDay = new Date(selectedDate);
-            endOfDay.setHours(23, 59, 59, 999);
-
-            // Convertir a formato ISO para el servicio
-            const startDateTime = startOfDay.toISOString().slice(0, 19);
-            const endDateTime = endOfDay.toISOString().slice(0, 19);
-            
-            const response = await this.recordService.getRecordsByDateRange(
-                startDateTime,
-                endDateTime
-            );
-            
-            res.status(200).json(response);
-            
-            logger.info(`Registros de la fecha ${date} enviados exitosamente`);
-        } catch (error) {
-            if (error instanceof MaxRowsReachedError) {
-                logger.warn(`MAX_ROWS_REACHED error en getRecordsByDateRange: ${error.message}`);
-                res.status(413).json({
-                    success: false,
-                    error: 'Límite de registros excedido',
-                    details: {
-                        message: error.message,
-                        maxRows: error.maxRows,
-                        suggestion: 'Intenta usar la ruta /select-day que divide la consulta en dos partes'
-                    }
-                });
-                return;
-            }
-            
-            logger.error(`Error al obtener registros por fecha: ${error}`);
-            res.status(500).json({
-                success: false,
-                error: 'Error al procesar la solicitud',
-                details: error instanceof Error ? error.message : 'Error desconocido'
-            });
-        }
     }
 
+    /**
+     * Obtiene todas las transmisiones del día actual
+     * Endpoint: GET /api/v1/records/all-day
+     */
     public async getAllDayRecords(req: Request, res: Response): Promise<void> {
         try {
             logger.info('Solicitud de todas las transmisiones del día actual');
@@ -176,7 +102,6 @@ export class RecordController {
             const response = await this.recordService.getAllDayRecords();
             
             res.status(200).json(response);
-            
             logger.info('Todas las transmisiones del día actual enviadas exitosamente');
         } catch (error) {
             if (error instanceof MaxRowsReachedError) {
@@ -202,6 +127,56 @@ export class RecordController {
         }
     }
 
+    // ========================================
+    // MÉTODOS DE CONSULTA POR IDENTIFICADOR
+    // ========================================
+
+    /**
+     * Obtiene registros por ID específico
+     * Endpoint: GET /api/v1/records/:id
+     */
+    public async getRecordsById(req: Request, res: Response): Promise<void> {
+        try {
+            const { id } = req.params;
+            logger.info(`Solicitud de registros para el ID: ${id}`);
+            
+            const response = await this.recordService.getRecordsById(id);
+            
+            res.status(200).json(response);
+            logger.info(`Registros para ID ${id} enviados exitosamente al cliente`);
+        } catch (error) {
+            if (error instanceof MaxRowsReachedError) {
+                logger.warn(`MAX_ROWS_REACHED error en getRecordsById: ${error.message}`);
+                res.status(413).json({
+                    success: false,
+                    error: 'Límite de registros excedido',
+                    details: {
+                        message: error.message,
+                        maxRows: error.maxRows,
+                        suggestion: 'Intenta usar un rango de fechas más específico o filtrar por período'
+                    }
+                });
+                return;
+            }
+            
+            logger.error(`Error al obtener registros por ID: ${error}`);
+            const errorResponse: IRecordsResponse = {
+                success: false,
+                error: 'Error al procesar la solicitud',
+                data: []
+            };
+            res.status(500).json(errorResponse);
+        }
+    }
+
+    // ========================================
+    // MÉTODOS DE CONSULTA POR FECHA
+    // ========================================
+
+    /**
+     * Obtiene registros de un día específico dividido en dos consultas
+     * Endpoint: GET /api/v1/records/select-day?date=DD-MM-YYYY
+     */
     public async selectDay(req: Request, res: Response): Promise<void> {
         try {
             const { date } = req.query;
@@ -223,7 +198,6 @@ export class RecordController {
             const response = await this.recordService.selectDay(date as string);
             
             res.status(200).json(response);
-            
             logger.info(`Registros del día completo ${date} enviados exitosamente`);
         } catch (error) {
             if (error instanceof MaxRowsReachedError) {

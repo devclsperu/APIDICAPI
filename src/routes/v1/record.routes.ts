@@ -7,14 +7,19 @@ import {
     allDayLimiter, 
     recordsByIdLimiter, 
     lastHoursLimiter, 
-    dateRangeLimiter,
     selectDayLimiter
 } from '../../config/rateLimit.config';
 
 const router = Router();
 const recordController = new RecordController();
 
-// Middleware para validar el parámetro de horas
+// ========================================
+// MIDDLEWARES DE VALIDACIÓN
+// ========================================
+
+/**
+ * Valida que el parámetro de horas esté en el rango válido (2-24)
+ */
 const validateHoursParam = (req: Request, res: Response, next: NextFunction) => {
     const hours = parseInt(req.params.hours);
     if (isNaN(hours) || hours < 2 || hours > 24) {
@@ -32,7 +37,9 @@ const validateHoursParam = (req: Request, res: Response, next: NextFunction) => 
     next();
 };
 
-// Middleware para validar fecha
+/**
+ * Valida el formato de fecha DD-MM-YYYY y que sea una fecha válida
+ */
 const validateDateRange = (req: Request, res: Response, next: NextFunction) => {
     const { date } = req.query;
     
@@ -90,7 +97,9 @@ const validateDateRange = (req: Request, res: Response, next: NextFunction) => {
     next();
 };
 
-// Middleware para validar que la ruta last-hour sea exacta
+/**
+ * Valida que la ruta last-hour sea exacta sin parámetros adicionales
+ */
 const validateLastHourRoute = (req: Request, res: Response, next: NextFunction) => {
     // Verificar que la URL completa sea exactamente /api/v1/records/last-hour
     if (req.originalUrl === '/api/v1/records/last-hour') {
@@ -105,7 +114,7 @@ const validateLastHourRoute = (req: Request, res: Response, next: NextFunction) 
                 availableEndpoints: [
                     'GET /api/v1/records/last-hour - Get records from the last hour',
                     'GET /api/v1/records/last/:hours - Get records from the last N hours (2-24)',
-                    'GET /api/v1/records/date-range - Get records from a specific day (requires query param: date in DD-MM-YYYY format)',
+                    'GET /api/v1/records/select-day - Get records from a specific day (requires query param: date in DD-MM-YYYY format)',
                     'GET /api/v1/records/all-day - Get all transmissions from the current day',
                     'GET /api/v1/records/:id - Get records by specific ID (requires id parameter)'
                 ]
@@ -114,7 +123,14 @@ const validateLastHourRoute = (req: Request, res: Response, next: NextFunction) 
     }
 };
 
-// Ruta específica para last-hour (debe ir antes que la ruta con parámetro)
+// ========================================
+// RUTAS ESPECÍFICAS (SIN PARÁMETROS)
+// ========================================
+
+/**
+ * GET /api/v1/records/last-hour
+ * Obtiene registros de la última hora
+ */
 router.get('/last-hour', validateToken, lastHourLimiter, validateLastHourRoute, (req: Request, res: Response, next: NextFunction) => {
     // Verificación adicional para asegurar que no haya parámetros adicionales
     if (Object.keys(req.query).length > 0) {
@@ -131,19 +147,33 @@ router.get('/last-hour', validateToken, lastHourLimiter, validateLastHourRoute, 
     next();
 }, recordController.getLastHourRecords.bind(recordController));
 
-// Ruta para obtener registros de las últimas N horas
-router.get('/last/:hours', validateToken, lastHoursLimiter, validateHoursParam, recordController.getLastHoursRecords.bind(recordController));
-
-// Nueva ruta para consulta por rango de fechas (DEBE IR ANTES QUE /:id)
-router.get('/date-range', validateToken, dateRangeLimiter, validateDateRange, recordController.getRecordsByDateRange.bind(recordController));
-
-// Nueva ruta para consulta de día completo dividido en dos partes
-router.get('/select-day', validateToken, selectDayLimiter, validateDateRange, recordController.selectDay.bind(recordController));
-
-// Nueva ruta para obtener todas las transmisiones del día actual (DEBE IR ANTES QUE /:id)
+/**
+ * GET /api/v1/records/all-day
+ * Obtiene todas las transmisiones del día actual
+ */
 router.get('/all-day', validateToken, allDayLimiter, recordController.getAllDayRecords.bind(recordController));
 
-// Ruta para obtener registros por ID específico (DEBE IR AL FINAL)
+/**
+ * GET /api/v1/records/select-day
+ * Obtiene registros de un día específico dividido en dos consultas
+ */
+router.get('/select-day', validateToken, selectDayLimiter, validateDateRange, recordController.selectDay.bind(recordController));
+
+// ========================================
+// RUTAS CON PARÁMETROS
+// ========================================
+
+/**
+ * GET /api/v1/records/last/:hours
+ * Obtiene registros de las últimas N horas (2-24)
+ */
+router.get('/last/:hours', validateToken, lastHoursLimiter, validateHoursParam, recordController.getLastHoursRecords.bind(recordController));
+
+/**
+ * GET /api/v1/records/:id
+ * Obtiene registros por ID específico
+ * DEBE IR AL FINAL para evitar conflictos con rutas específicas
+ */
 router.get('/:id', validateToken, recordsByIdLimiter, (req: Request, res: Response, next: NextFunction) => {
     // Verificar que el ID no sea 'last-hour' o alguna variación
     if (req.params.id.toLowerCase().includes('last-hour')) {
@@ -156,7 +186,7 @@ router.get('/:id', validateToken, recordsByIdLimiter, (req: Request, res: Respon
                 availableEndpoints: [
                     'GET /api/v1/records/last-hour - Get records from the last hour',
                     'GET /api/v1/records/last/:hours - Get records from the last N hours (2-24)',
-                    'GET /api/v1/records/date-range - Get records from a specific day (requires query param: date in DD-MM-YYYY format)',
+                    'GET /api/v1/records/select-day - Get records from a specific day (requires query param: date in DD-MM-YYYY format)',
                     'GET /api/v1/records/all-day - Get all transmissions from the current day',
                     'GET /api/v1/records/:id - Get records by specific ID (requires id parameter)'
                 ]
