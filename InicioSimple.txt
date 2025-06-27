@@ -1,0 +1,4 @@
+1- Ejecutar el script de Stop para asegurar cerrar la instanacia del api.
+2- Ante cualquier cambio ejecutar npm run build para volver a compilar el codigo con "npm run build".
+3- Ejecutar el script de start.
+4- Realizar una petición de prueba y revisar los logs de nginx y app/pm2.
